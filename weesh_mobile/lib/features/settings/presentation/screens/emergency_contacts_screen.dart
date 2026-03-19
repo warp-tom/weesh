@@ -81,10 +81,9 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                             backgroundColor:
                                 AppColors.primary.withValues(alpha: 0.1),
                             child: Text(
-                              contact['name']
-                                  .toString()
-                                  .substring(0, 1)
-                                  .toUpperCase(),
+                              (contact['name']?.toString() ?? '').isNotEmpty
+                                  ? contact['name'].toString().substring(0, 1).toUpperCase()
+                                  : '?',
                               style: GoogleFonts.plusJakartaSans(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,

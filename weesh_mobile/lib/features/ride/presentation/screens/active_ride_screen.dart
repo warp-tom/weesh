@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
 class ActiveRideScreen extends StatefulWidget {
@@ -24,9 +25,11 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   void initState() {
     super.initState();
     // Simulate finding driver network delay for demonstration
-    _findDriverTimer = Timer(const Duration(seconds: 4), () {
-      if (mounted) setState(() => _isFinding = false);
-    });
+    if (kDebugMode) {
+      _findDriverTimer = Timer(const Duration(seconds: 4), () {
+        if (mounted) setState(() => _isFinding = false);
+      });
+    }
   }
 
   @override
@@ -104,8 +107,8 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
     return Column(
       children: [
         const Gap(16),
-        SizedBox(
-          height: 60,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
           child: DefaultTextStyle(
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   color: AppColors.primary,
@@ -163,7 +166,11 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => context.push('/ride_completion'), // Demo navigation
+                onTap: () {
+                  if (kDebugMode) {
+                    context.push('/ride_completion'); // Demo navigation
+                  }
+                },
                 child: const CircleAvatar(
                   radius: 24,
                   backgroundImage: NetworkImage(
