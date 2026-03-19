@@ -266,6 +266,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
               ),
               onPressed: () {
                 // TODO: Implement call driver functionality
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Call functionality coming soon.')),
+                );
               },
               icon: const Icon(Iconsax.call),
             ),
