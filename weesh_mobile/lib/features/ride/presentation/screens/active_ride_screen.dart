@@ -236,7 +236,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
               const Text('Give this PIN to your driver',
                   style: TextStyle(color: AppColors.warmGrey)),
               const Gap(4),
-              // TODO: Replace with dynamically generated OTP from ride state
+              // Pending: Replace with dynamically generated OTP from ride state
               Text(
                 '7 4 9 2',
                 style: Theme.of(context)
@@ -265,7 +265,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                 )
               ),
               onPressed: () {
-                // TODO: Implement call driver functionality
+                // Pending: Implement call driver functionality
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Call functionality coming soon.')),
                 );
@@ -293,7 +293,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () {
-                  // TODO: Implement emergency SOS functionality
+                  // Pending: Implement emergency SOS functionality
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(

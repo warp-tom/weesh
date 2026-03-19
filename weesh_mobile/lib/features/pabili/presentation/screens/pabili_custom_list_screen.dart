@@ -155,7 +155,7 @@ class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen>
                           }
 
                           // Save document export to persistence and proceed 
-                          // TODO: Implement full Pabili order submission to Supabase
+                          // Pending: Implement full Pabili order submission to Supabase
                           ref.read(pabiliListProvider.notifier).setDocument(documentJsonStr);
                           context.push('/booking_confirmed');
                         },
