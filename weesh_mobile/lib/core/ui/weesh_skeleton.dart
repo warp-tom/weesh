@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 
 /// Shimmer skeleton loader system for all loading states.
@@ -70,14 +70,42 @@ class WeeshSkeleton extends StatelessWidget {
         child: _SkeletonBox(width: width, height: height, radius: 6),
       );
 
+  factory WeeshSkeleton.driverCard({Key? key}) => WeeshSkeleton._(
+        key: key,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.neutral200),
+          ),
+          child: const Row(
+            children: [
+              _SkeletonBox(width: 48, height: 48, radius: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SkeletonBox(width: 120, height: 18, radius: 4),
+                    SizedBox(height: 8),
+                    _SkeletonBox(width: 160, height: 12, radius: 4),
+                  ],
+                ),
+              ),
+              _SkeletonBox(width: 48, height: 24, radius: 12),
+            ],
+          ),
+        ),
+      );
+
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.neutral200,
-      highlightColor: AppColors.neutral100,
-      child: child,
+    return child.animate(onPlay: (controller) => controller.repeat()).shimmer(
+      duration: 1200.ms,
+      color: AppColors.neutral100.withValues(alpha: 0.5),
     );
   }
 }

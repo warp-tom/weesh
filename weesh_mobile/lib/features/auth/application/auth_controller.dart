@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:weesh_mobile/core/providers/supabase_provider.dart';
+import 'package:weesh_mobile/core/database/isar_service.dart';
 
 final authStateProvider = StreamProvider<AuthState>((ref) {
   return ref.read(supabaseProvider).auth.onAuthStateChange;
@@ -49,6 +50,15 @@ class AuthController extends AsyncNotifier<User?> {
   }
 
   Future<void> signOut() async {
+    try {
+      final isar = await ref.read(isarProvider.future);
+      await isar.writeTxn(() async {
+        await isar.clear();
+      });
+    } catch (e) {
+      // Ignore if Isar is not initialized or fails to clear
+    }
+    
     await ref.read(supabaseProvider).auth.signOut();
     state = const AsyncData(null);
   }

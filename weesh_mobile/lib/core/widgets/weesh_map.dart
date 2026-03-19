@@ -74,3 +74,22 @@ class _WeeshMapState extends State<WeeshMap> {
     );
   }
 }
+
+/// A standard extension to guarantee uniform, premium camera animations across Weesh.
+/// Uses a smooth cubic-bezier fly-to transition with architectural 3D tilt.
+extension WeeshMapControllerX on MapLibreMapController {
+  Future<void> flyToWeeshLocation(LatLng target, {double zoom = 16.0, double tilt = 45.0}) async {
+    await animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: target,
+          zoom: zoom,
+          tilt: tilt,
+        ),
+      ),
+      duration: const Duration(milliseconds: 2500),
+      // In native MapLibre GL, an animateCamera call with duration intrinsically operates
+      // on a cubic-bezier timing function for the fly-to effect.
+    );
+  }
+}

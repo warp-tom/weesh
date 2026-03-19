@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
-import 'package:weesh_mobile/core/ui/weesh_card.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:gap/gap.dart';
+import 'dart:convert';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:weesh_mobile/features/pabili/data/repositories/pabili_repository.dart';
+
+import 'dart:async';
 
 // Riverpod Provider for Shopping List State
-class PabiliListNotifier extends Notifier<List<String>> {
+// We now store the JSON serialized AppFlowy document string to persist
+// complex formatting (bullets, bold text) offline easily.
+class PabiliListNotifier extends AsyncNotifier<String> {
   @override
-  List<String> build() => [];
-
-  void addItem(String item) {
-    if (item.trim().isNotEmpty && !state.contains(item.trim())) {
-      state = [...state, item.trim()];
-    }
+  FutureOr<String> build() async {
+    final repo = ref.watch(pabiliRepositoryProvider);
+    return await repo.getDraft() ?? '';
   }
 
-  void removeItem(String item) {
-    state = state.where((element) => element != item).toList();
+  Future<void> setDocument(String json) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(pabiliRepositoryProvider);
+      await repo.saveDraft(json);
+      return json;
+    });
   }
 }
 
-final pabiliListProvider = NotifierProvider<PabiliListNotifier, List<String>>(() {
+final pabiliListProvider = AsyncNotifierProvider<PabiliListNotifier, String>(() {
   return PabiliListNotifier();
 });
 
@@ -35,32 +42,19 @@ class PabiliCustomListScreen extends ConsumerStatefulWidget {
 }
 
 class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen> {
-  final TextEditingController _itemController = TextEditingController();
+  EditorState? _editorState;
   final TextEditingController _budgetController = TextEditingController();
-
-  final List<String> _suggestedItems = [
-    'Cooking Oil (1L)',
-    'Eggs (1 Dozen)',
-    'Rice (5 Kilos)',
-    'Water (1 Gallon)',
-    'Bread (Loaf)',
-  ];
 
   @override
   void dispose() {
-    _itemController.dispose();
+    _editorState?.dispose();
     _budgetController.dispose();
     super.dispose();
   }
 
-  void _addCurrentItem() {
-    ref.read(pabiliListProvider.notifier).addItem(_itemController.text);
-    _itemController.clear();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final shoppingList = ref.watch(pabiliListProvider);
+    final pabiliAsync = ref.watch(pabiliListProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -68,179 +62,112 @@ class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen>
         title: 'Shopping List',
         backgroundColor: AppColors.background,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(AppPadding.section),
-                children: [
-                  Text('Quick Add', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const Gap(12),
-                  SizedBox(
-                    height: 48,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _suggestedItems.length,
-                      separatorBuilder: (context, index) => const Gap(8),
-                      itemBuilder: (context, index) {
-                        final item = _suggestedItems[index];
-                        return ActionChip(
-                          label: Text(item),
-                          backgroundColor: AppColors.sageGreen.withValues(alpha: 0.1),
-                          side: const BorderSide(color: AppColors.sageGreen),
-                          onPressed: () {
-                            ref.read(pabiliListProvider.notifier).addItem(item);
-                          },
-                        );
-                      },
+      body: pabiliAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        error: (err, stack) => Center(child: Text('Error loading list: $err')),
+        data: (savedJson) {
+          // Initialize editor state once when data is ready
+          if (_editorState == null) {
+            if (savedJson.isNotEmpty) {
+              try {
+                final json = jsonDecode(savedJson) as Map<String, dynamic>;
+                _editorState = EditorState(document: Document.fromJson(json));
+              } catch (e) {
+                debugPrint('Failed to decode saved Pabili JSON: $e');
+                _editorState = EditorState.blank();
+              }
+            } else {
+              _editorState = EditorState.blank();
+            }
+          }
+
+          return SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: AppPadding.section, vertical: 8),
+                  width: double.infinity,
+                  color: AppColors.surface,
+                  child: Text(
+                    'Type your items below. Use "- " for bullets, "1. " for numbers, or **bold** to organize your checklist clearly.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.neutral500),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppPadding.section),
+                    child: AppFlowyEditor(
+                      editorState: _editorState!,
                     ),
                   ),
-                  const Gap(24),
-                  
-                  // Add Item Field
-                  Row(
+                ),
+
+                // Bottom Confirm Container
+                Container(
+                  padding: const EdgeInsets.all(AppPadding.section),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _itemController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: AppColors.surface,
-                            hintText: 'Enter item to buy...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.neutral200),
-                            ),
+                      TextField(
+                        controller: _budgetController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.background,
+                          labelText: 'Est. Goods Cost (Optional)',
+                          prefixText: '₱ ',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
                           ),
-                          onSubmitted: (_) => _addCurrentItem(),
                         ),
                       ),
                       const Gap(16),
-                      FloatingActionButton(
-                        onPressed: _addCurrentItem,
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        child: const Icon(Icons.add),
+                      FilledButton(
+                        onPressed: () {
+                          if (_editorState == null) return;
+                          
+                          // Validation: Prevent empty lists
+                          final docJson = _editorState!.document.toJson();
+                          final documentJsonStr = jsonEncode(docJson);
+                          
+                          // Simple check: Is there any actual text content in any node?
+                          bool hasContent = false;
+                          for (final node in _editorState!.document.root.children) {
+                            final text = node.attributes['delta']?.toString() ?? '';
+                            if (text.trim().isNotEmpty && text != '[]') {
+                              hasContent = true;
+                              break;
+                            }
+                          }
+
+                          if (!hasContent) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please add at least one item to your list')),
+                            );
+                            return;
+                          }
+
+                          // Save document export to persistence and proceed 
+                          // Pending: Implement full Pabili order submission to Supabase
+                          ref.read(pabiliListProvider.notifier).setDocument(documentJsonStr);
+                          context.push('/booking_confirmed');
+                        },
+                        child: const Text('Confirm Pabili'),
                       ),
                     ],
                   ),
-                  const Gap(24),
-
-                  // Palengke Upload (Provincial Feature)
-                  Container(
-                    padding: const EdgeInsets.all(AppPadding.section),
-                    decoration: BoxDecoration(
-                      color: AppColors.tertiary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.tertiary.withValues(alpha: 0.3)),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.camera_alt_rounded, color: AppColors.tertiary, size: 36),
-                        const Gap(12),
-                        Text(
-                          'Have a handwritten list?',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.tertiary,
-                              ),
-                        ),
-                        const Gap(4),
-                        const Text(
-                          'Snap a photo of your physical Palengke list and our rider will handle the rest.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.neutral500, fontSize: 13),
-                        ),
-                        const Gap(16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () {}, // Action to open camera
-                            icon: const Icon(Icons.add_a_photo_outlined),
-                            label: const Text('Upload List Image'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.tertiary,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Gap(32),
-
-                  Text('Your Items (${shoppingList.length})', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const Gap(12),
-                  if (shoppingList.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(32),
-                      alignment: Alignment.center,
-                      child: const Text('Your shopping list is empty', style: TextStyle(color: AppColors.neutral500)),
-                    )
-                  else
-                    ...shoppingList.map((item) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: WeeshCard(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          borderColor: AppColors.neutral200,
-                        child: ListTile(
-                          title: Text(item, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: AppColors.deepCharcoal)),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: AppColors.error),
-                            onPressed: () {
-                              ref.read(pabiliListProvider.notifier).removeItem(item);
-                            },
-                          ),
-                        ),
-                      ),
-                      );
-                    }),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // Bottom Confirm Container
-            Container(
-              padding: const EdgeInsets.all(AppPadding.section),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: _budgetController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: AppColors.background,
-                      labelText: 'Est. Goods Cost (Optional)',
-                      prefixText: '₱ ',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const Gap(16),
-                  FilledButton(
-                    onPressed: shoppingList.isEmpty ? null : () {
-                      context.push('/booking_confirmed');
-                    },
-                    child: const Text('Confirm Pabili'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -11,6 +11,8 @@ import 'package:weesh_mobile/features/ride/application/ride_sync_service.dart';
 import 'package:weesh_mobile/features/parcel/application/parcel_sync_service.dart';
 import 'package:weesh_mobile/features/pabili/application/grocery_sync_service.dart';
 import 'package:weesh_mobile/core/widgets/weesh_map.dart';
+import 'package:simple_animations/simple_animations.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,10 +22,22 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  double _sheetProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() => _runBackgroundSync());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLocationPermission();
+    });
+  }
+
+  Future<void> _checkLocationPermission() async {
+    final status = await Permission.locationWhenInUse.status;
+    if (!status.isGranted) {
+      if (mounted) context.push('/priming');
+    }
   }
 
   Future<void> _runBackgroundSync() async {
@@ -45,74 +59,147 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Gap(16),
-              // Header — instant
-              _buildHeader(context, userName)
-                  .animate()
-                  .fadeIn(duration: AppDurations.normal),
-
-              // Mock Live Activity Pill (In production, wrap with a provider check)
-              GestureDetector(
-                onTap: () => context.push('/driver_en_route'),
-                child: _buildLiveActivityPill()
-                    .animate()
-                    .fadeIn(duration: AppDurations.normal)
-                    .slideY(begin: -0.1),
-              ),
-              
-              const Gap(24),
-              // Hero Banner — slides up first
-              _buildHeroBanner(context)
-                  .animate()
-                  .fadeIn(duration: AppDurations.slow)
-                  .slideY(begin: 0.12, curve: Curves.easeOut),
-              const Gap(28),
-              // Section header
-              Text(
-                'Explore by popular way',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.deepCharcoal,
-                ),
-              ).animate(delay: 150.ms).fadeIn(duration: AppDurations.normal),
-              const Gap(16),
-              // Service tiles — staggered
-              _buildServiceCategories(context)
-                  .animate(delay: 200.ms)
-                  .fadeIn(duration: AppDurations.slow)
-                  .slideX(begin: 0.1, curve: Curves.easeOut),
-              const Gap(28),
-              // Search bar
-              _buildSearchBar(context)
-                  .animate(delay: 300.ms)
-                  .fadeIn(duration: AppDurations.normal)
-                  .slideY(begin: 0.1),
-              const Gap(28),
-              // Map section header
-              Text(
-                'Take a look around you',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.deepCharcoal,
-                ),
-              ).animate(delay: 380.ms).fadeIn(duration: AppDurations.normal),
-              const Gap(16),
-              _buildMapSection()
-                  .animate(delay: 420.ms)
-                  .fadeIn(duration: AppDurations.slow)
-                  .slideY(begin: 0.1),
-              const Gap(24),
-            ],
+      body: Stack(
+        children: [
+          // 1. Full Screen Breathing Map
+          const Positioned.fill(
+            child: WeeshMap(
+              myLocationEnabled: false, // Disable native, use custom
+              compassEnabled: false,
+            ),
           ),
-        ),
+
+          // Custom Breathing Pin in the center
+          Positioned.fill(
+            child: Center(
+              child: _buildBreathingPin(),
+            ),
+          ),
+
+          // 2. Map Dimming Overlay linked to Sheet Drag
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                color: Colors.black.withValues(alpha: _sheetProgress * 0.6),
+              ),
+            ),
+          ),
+
+          // 3. Floating Header & Dynamic Island Activity Pill
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
+                child: Column(
+                  children: [
+                    const Gap(16),
+                    // Header — instant
+                    _buildHeader(context, userName)
+                        .animate()
+                        .fadeIn(duration: AppDurations.normal),
+
+                    // Mock Live Activity Pill
+                    GestureDetector(
+                      onTap: () => context.push('/driver_en_route'),
+                      child: _buildLiveActivityPill()
+                          .animate()
+                          .fadeIn(duration: AppDurations.normal)
+                          .slideY(begin: -0.1),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // 4. Fluid Draggable Bottom Sheet
+          NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              setState(() {
+                final extent = notification.extent;
+                final minExtent = notification.minExtent;
+                final maxExtent = notification.maxExtent;
+                _sheetProgress = ((extent - minExtent) / (maxExtent - minExtent)).clamp(0.0, 1.0);
+              });
+              return true;
+            },
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.45,
+              minChildSize: 0.45,
+              maxChildSize: 0.9,
+              snap: true,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 20,
+                        spreadRadius: 0,
+                        offset: Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Gap(12),
+                        // Drag Handle
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppColors.neutral500,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        const Gap(24),
+                        // Universal Search
+                        _buildUniversalSearch(context)
+                            .animate(delay: 100.ms)
+                            .fadeIn(duration: AppDurations.normal)
+                            .slideY(begin: 0.1),
+                        const Gap(28),
+                        // Hero Banner
+                        _buildHeroBanner(context)
+                            .animate(delay: 200.ms)
+                            .fadeIn(duration: AppDurations.slow)
+                            .slideY(begin: 0.12, curve: Curves.easeOut),
+                        const Gap(28),
+                        // Section header
+                        Text(
+                          'Explore Weesh',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.deepCharcoal,
+                          ),
+                        ).animate(delay: 300.ms).fadeIn(duration: AppDurations.normal),
+                        const Gap(16),
+                        // Service tiles
+                        _buildServiceCategories(context)
+                            .animate(delay: 400.ms)
+                            .fadeIn(duration: AppDurations.slow)
+                            .slideX(begin: 0.1, curve: Curves.easeOut),
+                        const Gap(40),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -398,7 +485,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
+  Widget _buildUniversalSearch(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/location_search'),
       child: Container(
@@ -415,7 +502,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const Gap(12),
             Expanded(
               child: Text(
-                'Where to?',
+                'Where to or What to buy?',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 15,
                   color: AppColors.warmGrey,
@@ -453,60 +540,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildMapSection() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppShadows.soft,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
+  Widget _buildBreathingPin() {
+    return MirrorAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(seconds: 2),
+      curve: Curves.easeInOutSine,
+      builder: (context, value, child) {
+        return Stack(
+          alignment: Alignment.center,
           children: [
-            const WeeshMap(
-              myLocationEnabled: false, 
-              compassEnabled: false,
-            ),
-            // Gradient Overlay
             Container(
+              width: 60 + (value * 40),
+              height: 60 + (value * 40),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.1),
-                    Colors.white.withValues(alpha: 0.8),
-                    Colors.white,
-                  ],
-                ),
+                shape: BoxShape.circle,
+                color: AppColors.terracotta.withValues(alpha: 0.1 + (0.2 * (1 - value))),
               ),
             ),
-            Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: FilledButton.icon(
-                  onPressed: () => context.push('/location_search'),
-                  icon: const Icon(Iconsax.map_1, size: 18),
-                  label: Text(
-                    'Set Pickup Location',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
-                    ),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.terracotta,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
                   ),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                ),
+                ],
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
+

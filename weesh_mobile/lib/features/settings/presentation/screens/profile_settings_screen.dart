@@ -89,7 +89,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                   ),
                   child: IconButton(
                     icon: const Icon(Iconsax.edit_2, size: 18, color: AppColors.terracotta),
-                    onPressed: () {},
+                    onPressed: () => context.push('/edit_profile'),
                   ),
                 ),
               ],
@@ -109,7 +109,13 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
             context,
             icon: Iconsax.card,
             title: 'Payment Methods',
-            onTap: () {},
+            onTap: () => context.push('/weesh_wallet'),
+          ),
+          _buildSettingsItem(
+            context,
+            icon: Iconsax.heart,
+            title: 'Emergency Contacts',
+            onTap: () => context.push('/emergency_contacts'),
           ),
           _buildSettingsItem(
             context,
@@ -128,7 +134,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
             context,
             icon: Iconsax.message_question,
             title: 'Help Center',
-            onTap: () {},
+            onTap: () => context.push('/help_center'),
           ),
 
           const Gap(8),
