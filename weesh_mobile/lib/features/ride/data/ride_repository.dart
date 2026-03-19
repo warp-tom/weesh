@@ -5,6 +5,7 @@ import 'package:weesh_mobile/core/database/isar/sync_status.dart';
 import 'package:weesh_mobile/features/ride/data/isar/isar_ride.dart';
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:weesh_mobile/core/providers/supabase_provider.dart';
 
@@ -17,10 +18,11 @@ final rideRepositoryProvider = Provider<RideRepository>((ref) {
 class RideRepository {
   final AsyncValue<Isar> _isarAsync;
   final SupabaseClient _supabase;
+  final bool disableBackgroundSync;
 
-  RideRepository(this._isarAsync, this._supabase);
+  RideRepository(this._isarAsync, this._supabase, {this.disableBackgroundSync = false});
 
-  Future<void> saveRide(IsarRide ride) async {
+  Future<void> saveRide(IsarRide ride, {void Function(SyncStatus)? onSyncComplete}) async {
     final isar = _isarAsync.value;
     if (isar == null) {
       throw Exception('Isar database is not initialized');
@@ -30,10 +32,14 @@ class RideRepository {
       await isar.isarRides.put(ride);
     });
 
-    unawaited(_syncToSupabase(ride));
+    if (!disableBackgroundSync) {
+      unawaited(_syncToSupabase(ride, onSyncComplete));
+    } else {
+      onSyncComplete?.call(ride.syncStatus);
+    }
   }
 
-  Future<void> _syncToSupabase(IsarRide ride) async {
+  Future<void> _syncToSupabase(IsarRide ride, void Function(SyncStatus)? onSyncComplete) async {
     try {
       final response = await _supabase
           .from('weesh_rides')
@@ -57,7 +63,9 @@ class RideRepository {
           await isar.isarRides.put(ride);
         });
       }
-    } catch (e) {
+      onSyncComplete?.call(SyncStatus.synced);
+    } catch (e, stackTrace) {
+      debugPrint('Failed to sync ride ${ride.id} to Supabase: $e\n$stackTrace');
       final isar = _isarAsync.value;
       if (isar != null) {
         await isar.writeTxn(() async {
@@ -65,6 +73,7 @@ class RideRepository {
           await isar.isarRides.put(ride);
         });
       }
+      onSyncComplete?.call(SyncStatus.failed);
     }
   }
 

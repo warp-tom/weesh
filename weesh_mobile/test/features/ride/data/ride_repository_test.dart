@@ -28,7 +28,8 @@ void main() {
       [IsarRideSchema],
       directory: tempDir.path,
     );
-    repository = RideRepository(AsyncData(isar), mockSupabase);
+    // Disable background sync to prevent tests from racing the unawaited async call and mutating SyncStatus deterministically
+    repository = RideRepository(AsyncData(isar), mockSupabase, disableBackgroundSync: true);
   });
 
   tearDown(() async {
