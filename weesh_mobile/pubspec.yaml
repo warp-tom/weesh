@@ -1,0 +1,89 @@
+name: weesh_mobile
+description: "Weesh - A premium Super App for Philippine provinces. Modern, Offline-First, and Scalable."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- CORE ARCHITECTURE (The "Iron Stack") ---
+  flutter_riverpod: ^2.4.9         # Robust, compile-safe state management
+  go_router: ^13.0.1              # Declarative routing (Deep linking support)
+  
+  # --- BACKEND & DATA ---
+  supabase_flutter: ^2.3.3        # Auth, Database, Storage (Backend)
+  isar: ^3.1.0+1                  # Extremely fast local NoSQL database (Offline-first)
+  isar_flutter_libs: ^3.1.0+1     # Isar binaries
+  
+  # --- MAPS & LOCATION ---
+  geolocator: ^10.1.0             # GPS location services
+  geocoding: ^2.1.1               # Address resolution
+
+  # --- UI & DESIGN SYSTEM (Material 3) ---
+  google_fonts: ^6.3.3            # Plus Jakarta Sans & Roboto
+  flutter_svg: ^2.0.9             # Vector illustrations (Nano Banana)
+  lottie: ^2.7.0                  # Animations (Genie/Loading)
+  flutter_animate: ^4.3.0         # Declarative animations (Modern UI transitions)
+  velocity_x: ^4.1.1              # Utility wrapper for rapid UI building (Padding/Alignment shortcuts)
+  shimmer: ^3.0.0                 # Loading placeholders (Modern UI polish)
+  cached_network_image: ^3.3.1    # Efficient image loading/caching
+  iconsax_flutter: ^1.0.0         # Modern Icon set (Better than default Material icons)
+  animated_text_kit: ^4.2.2       # Typewriter/wave text for Welcome + empty states
+  simple_animations: ^5.0.0       # Looping pulse animations for map pins + wallet card
+  appflowy_editor: ^6.2.0         # Tiptap equivalent — rich text for Help + Pabili notes
+
+  # --- UTILITIES ---
+  gap: ^3.0.1
+  intl: ^0.20.2                   # Date/Currency formatting
+  freezed_annotation: ^2.4.1      # Data class annotations
+  json_annotation: ^4.9.0         # JSON serialization
+  pin_code_fields: ^8.0.1         # OTP Input
+  flutter_native_splash: ^2.4.4   # Native splash screen configuration
+  path_provider: ^2.1.5
+  flutter_local_notifications: 18.0.0
+  image_picker: ^1.2.1
+  permission_handler: ^12.0.1
+  maplibre_gl: 0.25.0
+  storage_client: ^2.4.1
+  accessibility_tools: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+  
+  # --- CODE GENERATION ---
+  build_runner: ^2.4.8            # The engine for code generation
+  freezed: ^2.4.6                 # Generates immutable data classes
+  json_serializable: ^6.8.0       # Generates JSON serialization code
+  isar_generator: ^3.1.0+1        # Generates Isar schemas
+  custom_lint: ^0.5.11            # Custom lint rules engine
+  mocktail: ^1.0.4
+  weesh_lint:
+    path: ../weesh_lint
+
+
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+

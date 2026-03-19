@@ -1,0 +1,35 @@
+﻿00:00 +0: loading C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: RideRepository tests saveRide successfully inserts a new ride
+00:00 +1: RideRepository tests getPendingRides returns only rides with pending SyncStatus
+00:00 +1 -1: RideRepository tests getPendingRides returns only rides with pending SyncStatus [E]
+  LateInitializationError: Field 'remoteId' has not been initialized.
+  package:weesh_mobile/features/ride/data/isar/isar_ride.dart           IsarRide.remoteId
+  package:weesh_mobile/features/ride/data/isar/isar_ride.g.dart 114:28  _isarRideEstimateSize
+  package:isar/src/native/isar_collection_impl.dart 130:43              IsarCollectionImpl.serializeObjects
+  package:isar/src/native/isar_collection_impl.dart 306:7               IsarCollectionImpl.putAllByIndex.<fn>
+  package:isar/src/common/isar_common.dart 101:22                       IsarCommon.getTxn
+  package:isar/src/native/isar_collection_impl.dart 304:17              IsarCollectionImpl.putAllByIndex
+  package:isar/src/native/isar_collection_impl.dart 292:12              IsarCollectionImpl.putAll
+  package:isar/src/isar_collection.dart 82:12                           IsarCollection.put
+  package:weesh_mobile/features/ride/data/ride_repository.dart 24:28    RideRepository.saveRide.<fn>
+  dart:async                                                            _CustomZone.run
+  package:isar/src/common/isar_common.dart 55:29                        IsarCommon._beginTxn
+  
+00:00 +1 -1: RideRepository tests markAsSynced updates remoteId and syncStatus
+00:00 +1 -2: RideRepository tests markAsSynced updates remoteId and syncStatus [E]
+  LateInitializationError: Field 'remoteId' has not been initialized.
+  package:weesh_mobile/features/ride/data/isar/isar_ride.dart           IsarRide.remoteId
+  package:weesh_mobile/features/ride/data/isar/isar_ride.g.dart 114:28  _isarRideEstimateSize
+  package:isar/src/native/isar_collection_impl.dart 130:43              IsarCollectionImpl.serializeObjects
+  package:isar/src/native/isar_collection_impl.dart 306:7               IsarCollectionImpl.putAllByIndex.<fn>
+  package:isar/src/common/isar_common.dart 101:22                       IsarCommon.getTxn
+  package:isar/src/native/isar_collection_impl.dart 304:17              IsarCollectionImpl.putAllByIndex
+  package:isar/src/native/isar_collection_impl.dart 292:12              IsarCollectionImpl.putAll
+  package:isar/src/isar_collection.dart 82:12                           IsarCollection.put
+  package:weesh_mobile/features/ride/data/ride_repository.dart 24:28    RideRepository.saveRide.<fn>
+  dart:async                                                            _CustomZone.run
+  package:isar/src/common/isar_common.dart 55:29                        IsarCommon._beginTxn
+  
+00:00 +1 -2: (tearDownAll)
+00:00 +1 -2: Some tests failed.

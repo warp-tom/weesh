@@ -1,0 +1,12 @@
+{
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "java.import.gradle.enabled": false,
+    "java.import.exclusions": [
+        "**/weesh_mobile/android/**",
+        "**/android/**",
+        "**/build/**",
+        "**/.gradle/**"
+    ],
+    "java.project.sourcePaths": [],
+    "java.autobuild.enabled": false
+}

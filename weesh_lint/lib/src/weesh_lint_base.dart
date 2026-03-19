@@ -1,0 +1,1 @@
+// Weesh Lint core types

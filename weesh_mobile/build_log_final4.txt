@@ -1,0 +1,97 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 61.0.0 (98.0.0 available)
+  analyzer 5.13.0 (12.0.0 available)
+  analyzer_plugin 0.11.2 (0.14.7 available)
+  app_links 6.4.1 (7.0.0 available)
+  archive 3.6.1 (4.0.9 available)
+  build 2.4.1 (4.0.4 available)
+  build_config 1.1.2 (1.3.0 available)
+  build_resolvers 2.4.2 (3.0.4 available)
+  build_runner 2.4.13 (2.13.0 available)
+  build_runner_core 7.3.2 (9.3.2 available)
+  custom_lint 0.6.4 (0.8.1 available)
+  custom_lint_core 0.6.3 (0.8.2 available)
+  dart_style 2.3.2 (3.1.7 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.0 (21.0.0 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.0 available)
+  flutter_local_notifications_platform_interface 8.0.0 (11.0.0 available)
+  flutter_native_splash 2.4.4 (2.4.7 available)
+  flutter_riverpod 2.6.1 (3.3.1 available)
+  freezed 2.5.2 (3.2.5 available)
+  freezed_annotation 2.4.4 (3.1.0 available)
+  geocoding 2.2.2 (4.0.0 available)
+  geocoding_android 3.3.1 (5.0.1 available)
+  geocoding_ios 2.3.0 (3.1.0 available)
+  geocoding_platform_interface 3.2.0 (5.0.0 available)
+  geolocator 10.1.1 (14.0.2 available)
+  geolocator_android 4.6.2 (5.0.2 available)
+  geolocator_web 2.2.1 (4.1.3 available)
+  go_router 13.2.5 (17.1.0 available)
+  google_fonts 6.3.3 (8.0.2 available)
+  image 4.3.0 (4.8.0 available)
+  intl 0.18.1 (0.20.2 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.11.0 available)
+  json_serializable 6.8.0 (6.13.0 available)
+  lints 3.0.0 (6.1.0 available)
+  lottie 2.7.0 (3.3.2 available)
+  meta 1.17.0 (1.18.2 available)
+  pin_code_fields 8.0.1 (9.1.0 available)
+  riverpod 2.6.1 (3.2.1 available)
+  rxdart 0.27.7 (0.28.0 available)
+  shelf_web_socket 2.0.1 (3.0.0 available)
+  source_gen 1.5.0 (4.2.1 available)
+  source_helper 1.3.5 (1.3.10 available)
+  timezone 0.9.4 (0.11.0 available)
+  velocity_x 4.1.2 (4.3.1 available)
+Got dependencies!
+46 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Settings file 'C:\p-t-o\weesh_mobile\android\settings.gradle.kts' line: 20
+
+* What went wrong:
+Error resolving plugin [id: 'dev.flutter.flutter-plugin-loader', version: '1.0.0']
+> A problem occurred configuring project ':gradle'.
+   > Multiple build operations failed.
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\e370f1309bb427621c9dd7ae376db37f\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\cddd7300bb9fb6a257b2a8c4010f0450\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\1a2e779d82ee6cf1a37c485593df8340\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\5e16b903b7e71286fff5ef469aa5dd64\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\822b47f13945c7659893dc45f86fc384\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\3ff21b24bf0cfec0e493649fe83a5f72\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\0b6f6b7d0f2a1f4c9c7c5ec70c8cf723\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\8b7a8db04f880977c033a49d68f5c7b3\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\5862c24fe8d62ad60b1299d0d20cd0f2\metadata.bin
+         Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\b57d74f119dd44536bbe7af59900f6a5\metadata.bin
+         ...and 4 more failures.
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\e370f1309bb427621c9dd7ae376db37f\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\cddd7300bb9fb6a257b2a8c4010f0450\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\1a2e779d82ee6cf1a37c485593df8340\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\5e16b903b7e71286fff5ef469aa5dd64\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\822b47f13945c7659893dc45f86fc384\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\3ff21b24bf0cfec0e493649fe83a5f72\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\0b6f6b7d0f2a1f4c9c7c5ec70c8cf723\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\8b7a8db04f880977c033a49d68f5c7b3\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\5862c24fe8d62ad60b1299d0d20cd0f2\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\b57d74f119dd44536bbe7af59900f6a5\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\7f7d48f57bb581c9f98ae0b4fe0933e8\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\1ea24d9a6a4ebe6f9d029aa91bda221f\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\34e9e240dc85f40ff3529429a7b2b86d\metadata.bin
+      > Could not read workspace metadata from C:\Users\zen-0\.gradle\caches\8.14\transforms\0dea8e91a2e36b4821b140e98a3c6ad4\metadata.bin
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 36s
+Running Gradle task 'assembleDebug'...                             37.2s
+Gradle task assembleDebug failed with exit code 1

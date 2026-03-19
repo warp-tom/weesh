@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Weesh App",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=SUPABASE_URL=https://ppuckatpxbhvsybwuzrb.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwdWNrYXRweGJodnN5Ynd1enJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1Mzk4NzQsImV4cCI6MjA4OTExNTg3NH0.8KHa5n6tw5U-26sLQXRRQHmvxzo4pf_CLFn6nGp9Dx4"
+      ]
+    }
+  ]
+}
