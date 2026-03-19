@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
-import 'package:weesh_mobile/core/ui/weesh_card.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:gap/gap.dart';
+import 'dart:convert';
+import 'package:appflowy_editor/appflowy_editor.dart';
 
 // Riverpod Provider for Shopping List State
-class PabiliListNotifier extends Notifier<List<String>> {
+// We now store the JSON serialized AppFlowy document string to persist
+// complex formatting (bullets, bold text) offline easily.
+class PabiliListNotifier extends Notifier<String> {
   @override
-  List<String> build() => [];
+  String build() => '';
 
-  void addItem(String item) {
-    if (item.trim().isNotEmpty && !state.contains(item.trim())) {
-      state = [...state, item.trim()];
-    }
-  }
-
-  void removeItem(String item) {
-    state = state.where((element) => element != item).toList();
+  void setDocument(String json) {
+    state = json;
   }
 }
 
-final pabiliListProvider = NotifierProvider<PabiliListNotifier, List<String>>(() {
+final pabiliListProvider = NotifierProvider<PabiliListNotifier, String>(() {
   return PabiliListNotifier();
 });
 
@@ -35,33 +31,26 @@ class PabiliCustomListScreen extends ConsumerStatefulWidget {
 }
 
 class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen> {
-  final TextEditingController _itemController = TextEditingController();
+  late EditorState _editorState;
   final TextEditingController _budgetController = TextEditingController();
 
-  final List<String> _suggestedItems = [
-    'Cooking Oil (1L)',
-    'Eggs (1 Dozen)',
-    'Rice (5 Kilos)',
-    'Water (1 Gallon)',
-    'Bread (Loaf)',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Initialize an empty AppFlowy editor document state.
+    // Users can use markdown shortcuts (e.g. "- " for bullets) directly in the editor.
+    _editorState = EditorState.blank();
+  }
 
   @override
   void dispose() {
-    _itemController.dispose();
+    _editorState.dispose();
     _budgetController.dispose();
     super.dispose();
   }
 
-  void _addCurrentItem() {
-    ref.read(pabiliListProvider.notifier).addItem(_itemController.text);
-    _itemController.clear();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final shoppingList = ref.watch(pabiliListProvider);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const WeeshAppBar(
@@ -71,135 +60,22 @@ class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen>
       body: SafeArea(
         child: Column(
           children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.section, vertical: 8),
+              width: double.infinity,
+              color: AppColors.surface,
+              child: Text(
+                'Type your items below. Use "- " for bullets, "1. " for numbers, or **bold** to organize your checklist clearly.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.neutral500),
+              ),
+            ),
             Expanded(
-              child: ListView(
+              child: Padding(
                 padding: const EdgeInsets.all(AppPadding.section),
-                children: [
-                  Text('Quick Add', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const Gap(12),
-                  SizedBox(
-                    height: 48,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _suggestedItems.length,
-                      separatorBuilder: (context, index) => const Gap(8),
-                      itemBuilder: (context, index) {
-                        final item = _suggestedItems[index];
-                        return ActionChip(
-                          label: Text(item),
-                          backgroundColor: AppColors.sageGreen.withValues(alpha: 0.1),
-                          side: const BorderSide(color: AppColors.sageGreen),
-                          onPressed: () {
-                            ref.read(pabiliListProvider.notifier).addItem(item);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const Gap(24),
-                  
-                  // Add Item Field
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _itemController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: AppColors.surface,
-                            hintText: 'Enter item to buy...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.neutral200),
-                            ),
-                          ),
-                          onSubmitted: (_) => _addCurrentItem(),
-                        ),
-                      ),
-                      const Gap(16),
-                      FloatingActionButton(
-                        onPressed: _addCurrentItem,
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        child: const Icon(Icons.add),
-                      ),
-                    ],
-                  ),
-                  const Gap(24),
-
-                  // Palengke Upload (Provincial Feature)
-                  Container(
-                    padding: const EdgeInsets.all(AppPadding.section),
-                    decoration: BoxDecoration(
-                      color: AppColors.tertiary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.tertiary.withValues(alpha: 0.3)),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.camera_alt_rounded, color: AppColors.tertiary, size: 36),
-                        const Gap(12),
-                        Text(
-                          'Have a handwritten list?',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.tertiary,
-                              ),
-                        ),
-                        const Gap(4),
-                        const Text(
-                          'Snap a photo of your physical Palengke list and our rider will handle the rest.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.neutral500, fontSize: 13),
-                        ),
-                        const Gap(16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () {}, // Action to open camera
-                            icon: const Icon(Icons.add_a_photo_outlined),
-                            label: const Text('Upload List Image'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.tertiary,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Gap(32),
-
-                  Text('Your Items (${shoppingList.length})', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const Gap(12),
-                  if (shoppingList.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(32),
-                      alignment: Alignment.center,
-                      child: const Text('Your shopping list is empty', style: TextStyle(color: AppColors.neutral500)),
-                    )
-                  else
-                    ...shoppingList.map((item) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: WeeshCard(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          borderColor: AppColors.neutral200,
-                        child: ListTile(
-                          title: Text(item, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: AppColors.deepCharcoal)),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: AppColors.error),
-                            onPressed: () {
-                              ref.read(pabiliListProvider.notifier).removeItem(item);
-                            },
-                          ),
-                        ),
-                      ),
-                      );
-                    }),
-                ],
+                // AppFlowyEditor provides its own scrollable rich-text field area
+                child: AppFlowyEditor(
+                  editorState: _editorState,
+                ),
               ),
             ),
 
@@ -231,7 +107,10 @@ class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen>
                   ),
                   const Gap(16),
                   FilledButton(
-                    onPressed: shoppingList.isEmpty ? null : () {
+                    onPressed: () {
+                      // Save document export to Riverpod and proceed 
+                      final documentJson = jsonEncode(_editorState.document.toJson());
+                      ref.read(pabiliListProvider.notifier).setDocument(documentJson);
                       context.push('/booking_confirmed');
                     },
                     child: const Text('Confirm Pabili'),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:weesh_mobile/features/auth/presentation/screens/splash_screen.dart';
 import 'package:weesh_mobile/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:weesh_mobile/features/auth/presentation/screens/login_screen.dart';
@@ -104,8 +105,11 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/priming',
       builder: (context, state) => PermissionPrimingScreen(
-        onAllow: () => context.go('/login'),
-        onSkip: () => context.go('/login'),
+        onAllow: () async {
+          await Permission.locationWhenInUse.request();
+          if (context.mounted) context.pop();
+        },
+        onSkip: () => context.pop(),
       ),
     ),
     GoRoute(

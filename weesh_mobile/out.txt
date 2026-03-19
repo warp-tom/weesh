@@ -1,0 +1,12 @@
+Analyzing weesh_mobile...                                       
+
+  error - Target of URI doesn't exist: 'package:weesh_mobile/features/home/data/isar/isar_driver_state.dart' - lib\core\database\isar_service.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'IsarDriverStateSchema' - lib\core\database\isar_service.dart:14:7 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\ui\weesh_skeleton.dart:79:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:83:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:557:45 - deprecated_member_use
+   info - 'EditorState.empty' is deprecated and shouldn't be used. use EditorState.blank() instead - lib\features\pabili\presentation\screens\pabili_custom_list_screen.dart:42:20 - deprecated_member_use
+  error - The named parameter 'child' isn't defined - lib\features\ride\presentation\screens\active_ride_screen.dart:78:19 - undefined_named_parameter
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\presentation\screens\emergency_contacts_screen.dart:156:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\presentation\screens\emergency_contacts_screen.dart:156:42 - prefer_const_constructors
+

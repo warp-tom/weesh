@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 
 /// Shimmer skeleton loader system for all loading states.
@@ -74,10 +74,9 @@ class WeeshSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.neutral200,
-      highlightColor: AppColors.neutral100,
-      child: child,
+    return child.animate(onPlay: (controller) => controller.repeat()).shimmer(
+      duration: 1200.ms,
+      color: AppColors.neutral100.withValues(alpha: 0.5),
     );
   }
 }
