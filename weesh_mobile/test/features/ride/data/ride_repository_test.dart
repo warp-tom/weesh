@@ -1,14 +1,19 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:isar/isar.dart';
 import 'package:weesh_mobile/core/database/isar/sync_status.dart';
 import 'package:weesh_mobile/features/ride/data/ride_repository.dart';
 import 'package:weesh_mobile/features/ride/data/isar/isar_ride.dart';
 
+class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 void main() {
   late Isar isar;
   late RideRepository repository;
+  late MockSupabaseClient mockSupabase;
   late Directory tempDir;
 
   setUpAll(() async {
@@ -16,12 +21,14 @@ void main() {
   });
 
   setUp(() async {
+    mockSupabase = MockSupabaseClient();
+    when(() => mockSupabase.from(any())).thenThrow(Exception('mock error'));
     tempDir = Directory.systemTemp.createTempSync('isar_ride_test_');
     isar = await Isar.open(
       [IsarRideSchema],
       directory: tempDir.path,
     );
-    repository = RideRepository(AsyncData(isar));
+    repository = RideRepository(AsyncData(isar), mockSupabase);
   });
 
   tearDown(() async {

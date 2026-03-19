@@ -4,15 +4,21 @@ import 'package:weesh_mobile/core/database/isar_service.dart';
 import 'package:weesh_mobile/core/database/isar/sync_status.dart';
 import 'package:weesh_mobile/features/ride/data/isar/isar_ride.dart';
 
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:weesh_mobile/core/providers/supabase_provider.dart';
+
 final rideRepositoryProvider = Provider<RideRepository>((ref) {
   final isarAsync = ref.watch(isarProvider);
-  return RideRepository(isarAsync);
+  final supabase = ref.watch(supabaseProvider);
+  return RideRepository(isarAsync, supabase);
 });
 
 class RideRepository {
   final AsyncValue<Isar> _isarAsync;
+  final SupabaseClient _supabase;
 
-  RideRepository(this._isarAsync);
+  RideRepository(this._isarAsync, this._supabase);
 
   Future<void> saveRide(IsarRide ride) async {
     final isar = _isarAsync.value;
@@ -23,6 +29,43 @@ class RideRepository {
     await isar.writeTxn(() async {
       await isar.isarRides.put(ride);
     });
+
+    unawaited(_syncToSupabase(ride));
+  }
+
+  Future<void> _syncToSupabase(IsarRide ride) async {
+    try {
+      final response = await _supabase
+          .from('weesh_rides')
+          .insert({
+            'user_id': ride.userId,
+            'pickup_lat': ride.pickupLat,
+            'pickup_lng': ride.pickupLng,
+            'drop_lat': ride.dropLat,
+            'drop_lng': ride.dropLng,
+            'status': 'pending',
+          })
+          .select()
+          .single();
+
+      final remoteId = response['id'] as String;
+      final isar = _isarAsync.value;
+      if (isar != null) {
+        await isar.writeTxn(() async {
+          ride.remoteId = remoteId;
+          ride.syncStatus = SyncStatus.synced;
+          await isar.isarRides.put(ride);
+        });
+      }
+    } catch (e) {
+      final isar = _isarAsync.value;
+      if (isar != null) {
+        await isar.writeTxn(() async {
+          ride.syncStatus = SyncStatus.failed;
+          await isar.isarRides.put(ride);
+        });
+      }
+    }
   }
 
   Future<List<IsarRide>> getPendingRides() async {
