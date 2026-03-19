@@ -6,7 +6,8 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:gap/gap.dart';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:async';
+import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
@@ -17,14 +18,21 @@ class ActiveRideScreen extends StatefulWidget {
 
 class _ActiveRideScreenState extends State<ActiveRideScreen> {
   bool _isFinding = true;
+  Timer? _findDriverTimer;
 
   @override
   void initState() {
     super.initState();
     // Simulate finding driver network delay for demonstration
-    Future.delayed(const Duration(seconds: 4), () {
+    _findDriverTimer = Timer(const Duration(seconds: 4), () {
       if (mounted) setState(() => _isFinding = false);
     });
+  }
+
+  @override
+  void dispose() {
+    _findDriverTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -124,38 +132,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
         ),
         const Gap(16),
         // Skeleton Handoff precisely matching Driver Info Card geometry
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.neutral200),
-          ),
-          child: Row(
-            children: [
-              const CircleAvatar(radius: 24, backgroundColor: AppColors.neutral200),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(height: 18, width: 120, decoration: BoxDecoration(color: AppColors.neutral200, borderRadius: BorderRadius.circular(4))),
-                    const Gap(8),
-                    Container(height: 12, width: 160, decoration: BoxDecoration(color: AppColors.neutral200, borderRadius: BorderRadius.circular(4))),
-                  ],
-                ),
-              ),
-              Container(
-                width: 48,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral200,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              )
-            ],
-          ),
-        ).animate(onPlay: (controller) => controller.repeat()).shimmer(duration: 1200.ms, color: Colors.white54),
+        WeeshSkeleton.driverCard(),
         const Gap(32),
       ],
     );
@@ -252,6 +229,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
               const Text('Give this PIN to your driver',
                   style: TextStyle(color: AppColors.warmGrey)),
               const Gap(4),
+              // TODO: Replace with dynamically generated OTP from ride state
               Text(
                 '7 4 9 2',
                 style: Theme.of(context)
@@ -279,7 +257,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                   side: const BorderSide(color: AppColors.neutral200),
                 )
               ),
-              onPressed: () {},
+              onPressed: () {
+                // TODO: Implement call driver functionality
+              },
               icon: const Icon(Iconsax.call),
             ),
             const Gap(8),
@@ -302,7 +282,22 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  // TODO: Implement emergency SOS functionality
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Emergency SOS'),
+                      content: const Text('SOS functionality coming soon. In an emergency, please call local emergency services.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.warning_amber_rounded),
                 label: const Text('SOS'),
               ),

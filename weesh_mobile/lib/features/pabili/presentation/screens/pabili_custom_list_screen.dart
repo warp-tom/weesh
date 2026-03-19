@@ -37,9 +37,18 @@ class _PabiliCustomListScreenState extends ConsumerState<PabiliCustomListScreen>
   @override
   void initState() {
     super.initState();
-    // Initialize an empty AppFlowy editor document state.
-    // Users can use markdown shortcuts (e.g. "- " for bullets) directly in the editor.
-    _editorState = EditorState.blank();
+    // Restore previously saved document or start blank.
+    final savedJson = ref.read(pabiliListProvider);
+    if (savedJson.isNotEmpty) {
+      try {
+        final json = jsonDecode(savedJson) as Map<String, dynamic>;
+        _editorState = EditorState(document: Document.fromJson(json));
+      } catch (e) {
+        _editorState = EditorState.blank();
+      }
+    } else {
+      _editorState = EditorState.blank();
+    }
   }
 
   @override

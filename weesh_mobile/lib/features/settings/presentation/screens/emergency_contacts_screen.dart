@@ -158,16 +158,22 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () {
-              if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
-                setState(() {
-                  _contacts.add({
-                    'name': nameController.text,
-                    'phone': '+63 ${phoneController.text}',
-                    'enabled': true,
-                  });
-                });
-                Navigator.pop(context);
+              final name = nameController.text.trim();
+              final phone = phoneController.text.trim();
+              if (name.isEmpty || phone.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in all fields')),
+                );
+                return;
               }
+              setState(() {
+                _contacts.add({
+                  'name': name,
+                  'phone': '+63 $phone',
+                  'enabled': true,
+                });
+              });
+              Navigator.pop(context);
             },
             child: const Text('Add'),
           ),

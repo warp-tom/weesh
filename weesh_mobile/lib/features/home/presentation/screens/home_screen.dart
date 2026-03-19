@@ -35,7 +35,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _checkLocationPermission() async {
     final status = await Permission.locationWhenInUse.status;
-    if (status.isDenied) {
+    final needsPriming =
+        status.isDenied || status.isPermanentlyDenied || status.isRestricted;
+    if (needsPriming) {
       if (mounted) context.push('/priming');
     }
   }

@@ -106,8 +106,15 @@ final goRouter = GoRouter(
       path: '/priming',
       builder: (context, state) => PermissionPrimingScreen(
         onAllow: () async {
-          await Permission.locationWhenInUse.request();
-          if (context.mounted) context.pop();
+          final status = await Permission.locationWhenInUse.request();
+          if (!context.mounted) return;
+          if (status.isGranted) {
+            context.pop();
+            return;
+          }
+          if (status.isPermanentlyDenied) {
+            await openAppSettings();
+          }
         },
         onSkip: () => context.pop(),
       ),

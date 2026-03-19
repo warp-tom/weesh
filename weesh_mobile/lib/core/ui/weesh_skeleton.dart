@@ -70,6 +70,35 @@ class WeeshSkeleton extends StatelessWidget {
         child: _SkeletonBox(width: width, height: height, radius: 6),
       );
 
+  factory WeeshSkeleton.driverCard({Key? key}) => WeeshSkeleton._(
+        key: key,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.neutral200),
+          ),
+          child: Row(
+            children: [
+              const _SkeletonBox(width: 48, height: 48, radius: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    _SkeletonBox(width: 120, height: 18, radius: 4),
+                    SizedBox(height: 8),
+                    _SkeletonBox(width: 160, height: 12, radius: 4),
+                  ],
+                ),
+              ),
+              const _SkeletonBox(width: 48, height: 24, radius: 12),
+            ],
+          ),
+        ),
+      );
+
   final Widget child;
 
   @override
