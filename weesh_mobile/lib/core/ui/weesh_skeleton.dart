@@ -79,21 +79,21 @@ class WeeshSkeleton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.neutral200),
           ),
-          child: Row(
+          child: const Row(
             children: [
-              const _SkeletonBox(width: 48, height: 48, radius: 24),
-              const SizedBox(width: 12),
+              _SkeletonBox(width: 48, height: 48, radius: 24),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     _SkeletonBox(width: 120, height: 18, radius: 4),
                     SizedBox(height: 8),
                     _SkeletonBox(width: 160, height: 12, radius: 4),
                   ],
                 ),
               ),
-              const _SkeletonBox(width: 48, height: 24, radius: 12),
+              _SkeletonBox(width: 48, height: 24, radius: 12),
             ],
           ),
         ),
