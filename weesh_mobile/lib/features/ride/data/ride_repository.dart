@@ -65,7 +65,7 @@ class RideRepository {
       }
       onSyncComplete?.call(SyncStatus.synced);
     } catch (e, stackTrace) {
-      debugPrint('Failed to sync ride ${ride.id} to Supabase: $e\n$stackTrace');
+      debugPrint('Failed to sync ride local_id: ${ride.id}, user_id: ${ride.userId} to Supabase.\nPayload: {user_id: ${ride.userId}, pickup_lat: ${ride.pickupLat}, pickup_lng: ${ride.pickupLng}, drop_lat: ${ride.dropLat}, drop_lng: ${ride.dropLng}, status: pending}\nError: $e\n$stackTrace');
       final isar = _isarAsync.value;
       if (isar != null) {
         await isar.writeTxn(() async {

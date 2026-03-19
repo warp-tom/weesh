@@ -22,7 +22,6 @@ void main() {
 
   setUp(() async {
     mockSupabase = MockSupabaseClient();
-    when(() => mockSupabase.from(any())).thenThrow(Exception('mock error'));
     tempDir = Directory.systemTemp.createTempSync('isar_ride_test_');
     isar = await Isar.open(
       [IsarRideSchema],
