@@ -52,11 +52,23 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                     key: ValueKey(contact['name'].toString() + contact['phone'].toString()),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) {
+                      final removedContact = contact;
+                      final removedIndex = index;
                       setState(() {
                         _contacts.removeAt(index);
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Contact removed')),
+                        SnackBar(
+                          content: const Text('Contact removed'),
+                          action: SnackBarAction(
+                            label: 'UNDO',
+                            onPressed: () {
+                              setState(() {
+                                _contacts.insert(removedIndex, removedContact);
+                              });
+                            },
+                          ),
+                        ),
                       );
                     },
                     background: Container(
@@ -159,16 +171,40 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
             onPressed: () {
               final name = nameController.text.trim();
               final phone = phoneController.text.trim();
+              
               if (name.isEmpty || phone.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Please fill in all fields')),
                 );
                 return;
               }
+
+              // Basic phone number format validation (Philippine 10-digit local)
+              if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid 10-digit mobile number')),
+                );
+                return;
+              }
+
+              final fullPhone = '+63 $phone';
+              
+              // Duplicate contact prevention
+              final isDuplicate = _contacts.any((c) => 
+                c['name'].toString().toLowerCase() == name.toLowerCase() && 
+                c['phone'].toString().replaceAll(' ', '') == fullPhone.replaceAll(' ', ''));
+              
+              if (isDuplicate) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This contact already exists')),
+                );
+                return;
+              }
+
               setState(() {
                 _contacts.add({
                   'name': name,
-                  'phone': '+63 $phone',
+                  'phone': fullPhone,
                   'enabled': true,
                 });
               });
