@@ -41,6 +41,8 @@ class SupabaseProfileRepository implements ProfileRepository {
     }
   }
 
+  static const _allowedExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
+
   @override
   Future<String> uploadAvatar({
     required String userId,
@@ -48,7 +50,9 @@ class SupabaseProfileRepository implements ProfileRepository {
   }) async {
     try {
       final ext = p.extension(imageFile.path).replaceFirst('.', '').toLowerCase();
-      final sanitizedExt = ext.isEmpty ? 'jpg' : ext;
+      final sanitizedExt = ext.isEmpty || !_allowedExtensions.contains(ext) 
+          ? 'jpg' 
+          : ext;
 
       final path = '$userId.$sanitizedExt';
 
