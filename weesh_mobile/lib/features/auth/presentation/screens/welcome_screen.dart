@@ -84,8 +84,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     width: _currentPage == index ? 24 : 8,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? AppColors.terracotta
-                          : AppColors.warmGrey.withValues(alpha: 0.3),
+                          ? AppColors.primary
+                          : AppColors.cardBorder,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -103,15 +103,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             context.push('/login');
                           },
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.terracotta,
+                            backgroundColor: AppColors.primary,
+                            elevation: 0,
                             minimumSize: const Size.fromHeight(56),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Get Started",
-                            style: TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2)
@@ -140,10 +142,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       children: [
         Text(
           'Komusta! Welcome to',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.warmGrey,
+            color: AppColors.textLight,
           ),
         ),
         const Gap(4),
@@ -154,10 +156,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               animatedTexts: [
                 TypewriterAnimatedText(
                   'the Province.',
-                  textStyle: GoogleFonts.plusJakartaSans(
+                  textStyle: GoogleFonts.notoSansJp(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.terracotta,
+                    color: AppColors.error, // Torii Red Accent
+                    letterSpacing: -0.5,
                   ),
                   speed: const Duration(milliseconds: 70),
                 ),
@@ -177,28 +180,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       children: [
         Text(
           'All your needs in one place',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.warmGrey,
+            color: AppColors.textLight,
           ),
         ),
         const Gap(4),
         Text(
           'Ride. Deliver. Shop.',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.notoSansJp(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: AppColors.terracotta,
+            color: AppColors.textBody,
+            letterSpacing: -0.5,
           ),
           textAlign: TextAlign.center,
         ),
         const Gap(8),
         Text(
           'The ultimate super app designed specifically for the Province.',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 15,
-            color: AppColors.warmGrey,
+            color: AppColors.textLight,
             height: 1.5,
           ),
           textAlign: TextAlign.center,
@@ -213,19 +217,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       children: [
         Text(
           'Ready to begin?',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.warmGrey,
+            color: AppColors.textLight,
           ),
         ),
         const Gap(4),
         Text(
           'Experience Seamless Services',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.notoSansJp(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: AppColors.terracotta,
+            color: AppColors.textBody,
+            letterSpacing: -0.5,
           ),
           textAlign: TextAlign.center,
           maxLines: 2,
@@ -233,9 +238,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         const Gap(8),
         Text(
           'Create your account or login to get started.',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 15,
-            color: AppColors.warmGrey,
+            color: AppColors.textLight,
             height: 1.5,
           ),
           textAlign: TextAlign.center,

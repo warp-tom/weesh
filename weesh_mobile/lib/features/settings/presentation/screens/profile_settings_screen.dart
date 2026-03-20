@@ -31,7 +31,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Profile',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.notoSansJp(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: AppColors.deepCharcoal,
@@ -48,15 +48,15 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.cardBorder),
             ),
             child: Row(
               children: [
                 const CircleAvatar(
                   radius: 32,
-                  backgroundColor: AppColors.heroBanner,
-                  child: Icon(Iconsax.user, size: 32, color: AppColors.terracotta),
+                  backgroundColor: AppColors.surfaceDim,
+                  child: Icon(Iconsax.user, size: 32, color: AppColors.primary),
                 ),
                 const Gap(16),
                 Expanded(
@@ -65,7 +65,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                     children: [
                       Text(
                         userName,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.notoSansJp(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.deepCharcoal,
@@ -74,9 +74,9 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                       const Gap(2),
                       Text(
                         userPhone,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: AppColors.warmGrey,
+                          color: AppColors.textLight,
                         ),
                       ),
                     ],
@@ -84,11 +84,12 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.heroBanner,
+                    color: AppColors.surfaceDim,
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder),
                   ),
                   child: IconButton(
-                    icon: const Icon(Iconsax.edit_2, size: 18, color: AppColors.terracotta),
+                    icon: const Icon(Iconsax.edit_2, size: 18, color: AppColors.primary),
                     onPressed: () => context.push('/edit_profile'),
                   ),
                 ),
@@ -123,8 +124,8 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
             title: 'Language',
             trailing: Text(
               'English',
-              style: GoogleFonts.plusJakartaSans(
-                color: AppColors.warmGrey,
+              style: GoogleFonts.inter(
+                color: AppColors.textLight,
                 fontSize: 14,
               ),
             ),
@@ -150,7 +151,8 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
               onChanged: (value) {
                 setState(() => _isDarkMode = value);
               },
-              activeThumbColor: AppColors.terracotta,
+              activeThumbColor: AppColors.primary,
+              activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
             ),
             onTap: () => setState(() => _isDarkMode = !_isDarkMode),
           ),
@@ -191,7 +193,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     required String title,
     required VoidCallback onTap,
     Widget? trailing,
-    Color iconColor = AppColors.warmGrey,
+    Color iconColor = AppColors.neutral500,
     Color? textColor,
     bool showTrailing = true,
   }) {
@@ -201,14 +203,15 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: (textColor ?? AppColors.heroBanner).withValues(alpha: textColor != null ? 0.1 : 1.0),
+          color: (textColor ?? AppColors.primary).withValues(alpha: textColor != null ? 0.1 : 0.05),
           borderRadius: BorderRadius.circular(12),
+          border: textColor == null ? Border.all(color: AppColors.cardBorder) : null,
         ),
-        child: Icon(icon, color: textColor ?? AppColors.terracotta, size: 20),
+        child: Icon(icon, color: textColor ?? AppColors.primary, size: 20),
       ),
       title: Text(
         title,
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.inter(
           fontWeight: FontWeight.w600,
           fontSize: 15,
           color: textColor ?? AppColors.deepCharcoal,
@@ -216,7 +219,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
       ),
       trailing: trailing ??
           (showTrailing
-              ? const Icon(Icons.chevron_right, color: AppColors.warmGrey)
+              ? const Icon(Icons.chevron_right, color: AppColors.neutral500)
               : null),
       onTap: onTap,
     );

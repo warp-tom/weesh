@@ -47,7 +47,7 @@ class _ChooseChariotScreenState extends ConsumerState<ChooseChariotScreen> {
                 Padding(
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.35),
                   child: const WeeshPulsePin(
-                    color: AppColors.terracotta,
+                    color: AppColors.primary,
                     icon: Icons.person_pin_circle,
                   ),
                 ),
@@ -260,7 +260,7 @@ class _ChooseChariotScreenState extends ConsumerState<ChooseChariotScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -268,7 +268,7 @@ class _ChooseChariotScreenState extends ConsumerState<ChooseChariotScreen> {
                       style: GoogleFonts.plusJakartaSans(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                          color: Colors.white),
                     ),
                   ),
                 ],

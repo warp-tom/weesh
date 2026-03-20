@@ -135,15 +135,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return Container(
                   decoration: const BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 20,
-                        spreadRadius: 0,
-                        offset: Offset(0, -4),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    border: Border(top: BorderSide(color: AppColors.cardBorder)),
                   ),
                   child: SingleChildScrollView(
                     controller: scrollController,
@@ -218,8 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(100),
-        boxShadow: AppShadows.soft,
-        border: Border.all(color: AppColors.terracotta.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: AppColors.terracotta,
+                  color: AppColors.primary, // Matcha pulse
                   shape: BoxShape.circle,
                 ),
               ).animate(onPlay: (controller) => controller.repeat(reverse: true))
@@ -311,8 +303,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppShadows.soft,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Row(
         children: [
@@ -444,8 +436,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: AppShadows.soft,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.cardBorder),
           ),
           child: Column(
             children: [
@@ -554,7 +546,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               height: 60 + (value * 40),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.terracotta.withValues(alpha: 0.1 + (0.2 * (1 - value))),
+                color: AppColors.primary.withValues(alpha: 0.1 + (0.2 * (1 - value))),
               ),
             ),
             Container(
@@ -562,7 +554,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.terracotta,
+                color: AppColors.primary,
                 border: Border.all(color: Colors.white, width: 3),
                 boxShadow: const [
                   BoxShadow(

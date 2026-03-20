@@ -92,10 +92,11 @@ class _WeeshButtonState extends State<WeeshButton> {
                   ],
                   Text(
                     widget.label,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: _foregroundColor,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
@@ -105,13 +106,13 @@ class _WeeshButtonState extends State<WeeshButton> {
   }
 
   Color get _backgroundColor => switch (widget._variant) {
-        _ButtonVariant.filled || _ButtonVariant.withIcon => AppColors.terracotta,
+        _ButtonVariant.filled || _ButtonVariant.withIcon => AppColors.primary,
         _ButtonVariant.ghost => Colors.transparent,
       };
 
   Color get _foregroundColor => switch (widget._variant) {
         _ButtonVariant.filled || _ButtonVariant.withIcon => Colors.white,
-        _ButtonVariant.ghost => AppColors.terracotta,
+        _ButtonVariant.ghost => AppColors.primary,
       };
 }
 

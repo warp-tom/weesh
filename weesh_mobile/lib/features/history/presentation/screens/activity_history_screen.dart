@@ -15,7 +15,7 @@ final activeActivitiesProvider =
             'amount': '₱120.00',
             'status': 'In Transit',
             'icon': Iconsax.box,
-            'color': AppColors.terracotta,
+            'color': AppColors.primary,
           },
           {
             'title': 'Pabili at Palengke',
@@ -79,11 +79,11 @@ class ActivityHistoryScreen extends ConsumerWidget {
           ),
           automaticallyImplyLeading: false,
           bottom: TabBar(
-            labelColor: AppColors.terracotta,
-            unselectedLabelColor: AppColors.warmGrey,
-            indicatorColor: AppColors.terracotta,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textLight,
+            indicatorColor: AppColors.primary,
             indicatorSize: TabBarIndicatorSize.label,
-            labelStyle: GoogleFonts.plusJakartaSans(
+            labelStyle: GoogleFonts.inter(
               fontWeight: FontWeight.w600,
             ),
             tabs: const [
@@ -112,8 +112,8 @@ class ActivityHistoryScreen extends ConsumerWidget {
             const Gap(12),
             Text(
               'No activities yet',
-              style: GoogleFonts.plusJakartaSans(
-                color: AppColors.warmGrey,
+              style: GoogleFonts.inter(
+                color: AppColors.textLight,
                 fontSize: 16,
               ),
             ),
@@ -186,17 +186,17 @@ class ActivityHistoryScreen extends ConsumerWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
                         color: AppColors.deepCharcoal,
                       ),
                     ),
                     const Gap(4),
                     Text(
                       date,
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppColors.warmGrey,
+                      style: GoogleFonts.inter(
+                        color: AppColors.textLight,
                         fontSize: 13,
                       ),
                     ),
@@ -208,8 +208,8 @@ class ActivityHistoryScreen extends ConsumerWidget {
                 children: [
                   Text(
                     amount,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
                       fontSize: 15,
                       color: AppColors.deepCharcoal,
                     ),
@@ -223,10 +223,10 @@ class ActivityHistoryScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       status,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         color: statusColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

@@ -66,8 +66,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   inactiveColor: AppColors.neutral200,
                   selectedColor: AppColors.primary,
                 ),
+                textStyle: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.deepCharcoal,
+                ),
                 enableActiveFill: true,
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() {});
+                },
               ),
               const SizedBox(height: 16),
               Center(

@@ -31,27 +31,28 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Placeholder for logo
+            // Minimalist Logo Presentation
             Container(
               width: 120,
               height: 120,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.cardBorder, width: 1),
               ),
               child: const Center(
                 child: Icon(
                   Icons.electric_rickshaw,
                   size: 60,
-                  color: AppColors.surface,
+                  color: AppColors.primary, // Matcha
                 ),
               ),
             ),
-            const Gap(16),
+            const Gap(24), // Increased spacing for Ma
             Text(
               'Your Wish, Our Wheels',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.primary,
+                    color: AppColors.textBody, // Sumi Ink instead of primary
                   ),
             ),
           ],

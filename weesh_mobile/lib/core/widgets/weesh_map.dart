@@ -47,8 +47,6 @@ class _WeeshMapState extends State<WeeshMap> {
     widget.onMapCreated?.call(controller);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {

@@ -12,96 +12,108 @@ final ThemeData appTheme = ThemeData(
     error: AppColors.error,
   ),
   scaffoldBackgroundColor: AppColors.background,
+  
+  // Font fallback ensures ₱ renders correctly if primary font lacks glyph
+  fontFamilyFallback: const ['Roboto', 'sans-serif'],
 
-  // Typography
+  // Typography - Noto Sans JP for display, Inter for body (Japanese minimal)
   textTheme: TextTheme(
-    displayLarge: GoogleFonts.plusJakartaSans(
+    displayLarge: GoogleFonts.notoSansJp(
       fontSize: 32.0,
-      fontWeight: FontWeight.w800, // ExtraBold to anchor layout
+      fontWeight: FontWeight.w700,
       color: AppColors.deepCharcoal,
+      letterSpacing: -0.5,
     ),
-    headlineMedium: GoogleFonts.plusJakartaSans(
+    headlineMedium: GoogleFonts.notoSansJp(
       fontSize: 24.0,
-      fontWeight: FontWeight.w800, // Bolder hierarchy
+      fontWeight: FontWeight.w700,
       color: AppColors.textBody,
+      letterSpacing: -0.5,
     ),
-    headlineSmall: GoogleFonts.plusJakartaSans(
+    headlineSmall: GoogleFonts.notoSansJp(
       fontSize: 20.0,
       fontWeight: FontWeight.w600,
       color: AppColors.textBody,
     ),
-    bodyLarge: GoogleFonts.plusJakartaSans(
+    bodyLarge: GoogleFonts.inter(
       fontSize: 16.0,
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w400,
       color: AppColors.textBody,
+      height: 1.5,
     ),
-    bodyMedium: GoogleFonts.plusJakartaSans(
+    bodyMedium: GoogleFonts.inter(
       fontSize: 14.0,
-      fontWeight: FontWeight.normal,
-      color: AppColors.textBody,
+      fontWeight: FontWeight.w400,
+      color: AppColors.textLight,
+      height: 1.5,
     ),
-    labelLarge: GoogleFonts.plusJakartaSans(
+    labelLarge: GoogleFonts.inter(
       fontSize: 14.0,
       fontWeight: FontWeight.w500,
+      letterSpacing: 0.2,
     ),
   ),
 
   // Component Themes
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: AppColors.terracotta,
+      backgroundColor: AppColors.primary, // Matcha green CTA
       foregroundColor: Colors.white,
       minimumSize: const Size.fromHeight(56),
+      elevation: 0, // Flat design
       shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.buttonRadius, // Sharper 8px
       ),
-      textStyle: GoogleFonts.plusJakartaSans(
-        fontSize: 16.0,
-        fontWeight: FontWeight.w500,
+      textStyle: GoogleFonts.inter(
+        fontSize: 15.0,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
       ),
     ),
   ),
 
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: AppColors.primary,
-      side: const BorderSide(color: AppColors.primary),
+      foregroundColor: AppColors.textBody, // Sumi ink
+      side: const BorderSide(color: AppColors.cardBorder, width: 1.0), // Thin stone border
       minimumSize: const Size.fromHeight(56),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.buttonRadius,
       ),
-      textStyle: GoogleFonts.plusJakartaSans(
-        fontSize: 16.0,
-        fontWeight: FontWeight.w500,
+      textStyle: GoogleFonts.inter(
+        fontSize: 15.0,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
       ),
     ),
   ),
 
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: AppColors.surface, // Clean white
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     border: OutlineInputBorder(
       borderRadius: AppRadius.inputRadius,
-      borderSide: const BorderSide(color: AppColors.neutral200),
+      borderSide: const BorderSide(color: AppColors.cardBorder, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: AppRadius.inputRadius,
-      borderSide: const BorderSide(color: AppColors.neutral200),
+      borderSide: const BorderSide(color: AppColors.cardBorder, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: AppRadius.inputRadius,
-      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      borderSide: const BorderSide(color: AppColors.primary, width: 1.5), // Subtle focus
     ),
-    labelStyle: GoogleFonts.plusJakartaSans(color: AppColors.textBody),
-    hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.warmGrey),
+    labelStyle: GoogleFonts.inter(color: AppColors.textLight),
+    hintStyle: GoogleFonts.inter(color: AppColors.neutral500),
   ),
 
   cardTheme: CardThemeData(
     color: AppColors.surface,
     elevation: 0,
     shape: RoundedRectangleBorder(
-      side: const BorderSide(color: AppColors.cardBorder, width: 1),
+      side: const BorderSide(color: AppColors.cardBorder, width: 1), // Crisp 1px border
       borderRadius: AppRadius.cardRadius,
     ),
     margin: EdgeInsets.zero,
@@ -109,21 +121,32 @@ final ThemeData appTheme = ThemeData(
 
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: AppColors.surface,
-    indicatorColor: AppColors.secondary,
-    labelTextStyle: WidgetStateProperty.all(
-      GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500),
-    ),
+    indicatorColor: AppColors.primary.withValues(alpha: 0.1), // Gentle matcha indicator
+    labelTextStyle: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
+        return GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary);
+      }
+      return GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textLight);
+    }),
+    iconTheme: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
+        return const IconThemeData(color: AppColors.primary);
+      }
+      return const IconThemeData(color: AppColors.neutral500);
+    }),
   ),
 
   appBarTheme: AppBarTheme(
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // Rice paper
     elevation: 0,
     scrolledUnderElevation: 0,
     surfaceTintColor: Colors.transparent,
-    titleTextStyle: GoogleFonts.plusJakartaSans(
-      fontSize: 20,
+    centerTitle: true, // Classic minimalist centering
+    titleTextStyle: GoogleFonts.notoSansJp(
+      fontSize: 18,
       fontWeight: FontWeight.w600,
       color: AppColors.deepCharcoal,
+      letterSpacing: -0.3,
     ),
     iconTheme: const IconThemeData(color: AppColors.deepCharcoal),
   ),

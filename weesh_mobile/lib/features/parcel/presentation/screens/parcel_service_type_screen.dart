@@ -52,7 +52,7 @@ class ParcelServiceTypeScreen extends StatelessWidget {
                     Text('Select Vehicle', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     const Gap(12),
                     SizedBox(
-                      height: 84,
+                      height: 100,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: const [
@@ -128,7 +128,7 @@ class _VehicleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
+      width: 110,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isSelected ? AppColors.deepCharcoal : AppColors.background,
@@ -139,7 +139,7 @@ class _VehicleCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: isSelected ? Colors.white : AppColors.deepCharcoal),
-          const Spacer(),
+          const Gap(8),
           Text(name, style: TextStyle(color: isSelected ? Colors.white : AppColors.deepCharcoal, fontWeight: FontWeight.bold, fontSize: 13)),
           Text(time, style: TextStyle(color: isSelected ? AppColors.neutral200 : AppColors.neutral500, fontSize: 11)),
         ],

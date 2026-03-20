@@ -41,8 +41,8 @@ class WeeshWalletScreen extends ConsumerWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.terracotta,
-                  Color(0xFFB04A3C),
+                  AppColors.primary,
+                  Color(0xFF1F352C), // Darker shade of Matcha
                 ],
               ),
             ),
@@ -203,10 +203,11 @@ class WeeshWalletScreen extends ConsumerWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.terracotta.withValues(alpha: 0.1),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.cardBorder, width: 1.0),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppColors.terracotta, size: 24),
+            child: Icon(icon, color: AppColors.primary, size: 24),
           ),
           const Gap(8),
           Text(
@@ -306,10 +307,11 @@ class WeeshWalletScreen extends ConsumerWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.heroBanner,
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.cardBorder, width: 1.0),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.terracotta, size: 20),
+            child: Icon(icon, color: AppColors.deepCharcoal, size: 20),
           ),
           const Gap(14),
           Expanded(
