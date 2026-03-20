@@ -36,6 +36,7 @@ class WeeshAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: showBackButton
           ? IconButton(
               icon: const Icon(Iconsax.arrow_left_2_copy, color: AppColors.deepCharcoal),
+              tooltip: 'Back', // Add semantic label for screen readers
               onPressed: () {
                 HapticFeedback.lightImpact(); // Sensory layer
                 if (onBackPressed != null) {

@@ -79,8 +79,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: authState.isLoading
                       ? null
                       : () async {
-                          final phone = '+63${_phoneController.text.trim()}';
-                          if (phone.length < 13) {
+                          final phone = '63${_phoneController.text.trim()}';
+                          if (phone.length < 12) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(

@@ -43,10 +43,12 @@ class WeeshApp extends StatelessWidget {
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
-        if (kDebugMode && child != null) {
+        const bool enableAccessibilityTools = false;
+        // ignore: dead_code
+        if (enableAccessibilityTools && kDebugMode && child != null) {
           return AccessibilityTools(child: child);
         }
-        return child ?? const SizedBox.shrink();
+        return child!;
       },
     );
   }

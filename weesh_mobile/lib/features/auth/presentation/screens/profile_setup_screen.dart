@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:storage_client/storage_client.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/features/auth/application/auth_controller.dart';
-import 'package:weesh_mobile/core/providers/supabase_provider.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
+import 'package:weesh_mobile/features/profile/application/profile_controller.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -109,24 +108,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     );
   }
 
-  // ─── Upload to Supabase Storage + upsert user row ────────────────────────
-
-  Future<String?> _uploadAvatar(String userId) async {
-    if (_selectedImage == null) return null;
-
-    final supabase = ref.read(supabaseProvider);
-    final ext = _selectedImage!.path.split('.').last.toLowerCase();
-    final path = 'avatars/$userId.$ext';
-
-    await supabase.storage.from('user-avatars').upload(
-          path,
-          _selectedImage!,
-          fileOptions: const FileOptions(upsert: true),
-        );
-
-    return supabase.storage.from('user-avatars').getPublicUrl(path);
-  }
-
   Future<void> _completeSetup() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
@@ -146,26 +127,28 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       final user = authState.value;
 
       if (user != null) {
-        // 1. Upload avatar (if selected) and get public URL
-        final avatarUrl = await _uploadAvatar(user.id);
-
-        // 2. Upsert user profile row
-        await ref.read(supabaseProvider).from('users').upsert({
-          'id': user.id,
-          'phone': user.phone,
-          'full_name': name,
-          if (_emailController.text.trim().isNotEmpty)
-            'email': _emailController.text.trim(),
-          if (avatarUrl != null) 'avatar_url': avatarUrl,
-          'updated_at': DateTime.now().toIso8601String(),
-        });
+        // Delegate profile setup and image upload to the controller
+        await ref.read(profileControllerProvider.notifier).setupProfile(
+              userId: user.id,
+              phone: user.phone ?? '',
+              fullName: name,
+              email: _emailController.text.trim().isNotEmpty
+                  ? _emailController.text.trim()
+                  : null,
+              avatarFile: _selectedImage,
+            );
+            
+        // Check if the controller hit an error during the guard
+        final controllerState = ref.read(profileControllerProvider);
+        if (controllerState.hasError) {
+           throw controllerState.error!;
+        }
       }
 
       if (!mounted) return;
       context.go('/home');
-    } catch (e, stack) {
-      debugPrint('CRITICAL SUPABASE ERROR: $e');
-      debugPrint('STACKTRACE: $stack');
+    } catch (e) {
+      debugPrint('CRITICAL PROFILE ERROR: $e');
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(content: Text(e.toString())),
