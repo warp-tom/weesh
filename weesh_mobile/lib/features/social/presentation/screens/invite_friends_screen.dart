@@ -78,6 +78,7 @@ class InviteFriendsScreen extends StatelessWidget {
                                     content: Text('Code copied to clipboard')),
                               );
                             },
+                            tooltip: 'Copy referral code',
                             icon: const Icon(Iconsax.copy,
                                 color: AppColors.primary),
                           ),

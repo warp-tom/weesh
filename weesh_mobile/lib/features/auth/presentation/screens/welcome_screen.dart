@@ -103,7 +103,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             context.push('/login');
                           },
                           style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFCB6051),
+                            backgroundColor: AppColors.terracotta,
                             minimumSize: const Size.fromHeight(56),
                           ),
                           child: const Text(
@@ -148,7 +148,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
         const Gap(4),
         SizedBox(
-          height: 48, // Minimum tap area for accessibility
+          height: 48, // Constrain height for animated text
           child: Center(
             child: AnimatedTextKit(
               animatedTexts: [

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:weesh_mobile/core/providers/supabase_provider.dart';
 import 'package:weesh_mobile/features/profile/domain/repositories/profile_repository.dart';
@@ -28,8 +29,9 @@ class SupabaseProfileRepository implements ProfileRepository {
         'phone': phone,
         'full_name': fullName,
         if (email != null && email.isNotEmpty) 'email': email,
-        if (avatarUrl != null) 'avatar_url': avatarUrl,
-        'updated_at': DateTime.now().toIso8601String(),
+        if (avatarUrl != null && avatarUrl.isNotEmpty)
+          'avatar_url': avatarUrl,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
       });
     } on PostgrestException catch (e) {
       // In a real app, wrap in domain-specific WeeshNetworkException
@@ -45,8 +47,10 @@ class SupabaseProfileRepository implements ProfileRepository {
     required File imageFile,
   }) async {
     try {
-      final ext = imageFile.path.split('.').last.toLowerCase();
-      final path = 'avatars/$userId.$ext';
+      final ext = p.extension(imageFile.path).replaceFirst('.', '').toLowerCase();
+      final sanitizedExt = ext.isEmpty ? 'jpg' : ext;
+
+      final path = '$userId.$sanitizedExt';
 
       // CRITICAL FIX: The correct bucket name is 'avatars'
       await _supabase.storage.from('avatars').upload(

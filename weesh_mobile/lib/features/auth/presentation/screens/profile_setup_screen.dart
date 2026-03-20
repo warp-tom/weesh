@@ -147,8 +147,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
       if (!mounted) return;
       context.go('/home');
-    } catch (e) {
-      debugPrint('CRITICAL PROFILE ERROR: $e');
+    } catch (e, stack) {
+      debugPrint('CRITICAL PROFILE ERROR: $e\n$stack');
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(content: Text(e.toString())),
