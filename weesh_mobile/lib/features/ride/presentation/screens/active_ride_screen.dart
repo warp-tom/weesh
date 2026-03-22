@@ -23,16 +23,25 @@ class _ActiveRideScreenState extends ConsumerState<ActiveRideScreen> {
   bool _hadRide = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Listen outside of build() to avoid setState-during-build errors.
+    // Once we see any non-null ride, remember it so we can show
+    // a terminal "Ride Completed" state if the stream later emits null.
+    ref.listenManual<AsyncValue<WeeshRide?>>(activeRideStreamProvider,
+        (_, next) {
+      next.whenData((ride) {
+        if (ride != null && !_hadRide && mounted) {
+          setState(() => _hadRide = true);
+        }
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final rideAsync = ref.watch(activeRideStreamProvider);
     final driverAsync = ref.watch(assignedDriverProvider);
-
-    // Track whether we have ever seen a non-null ride this session.
-    rideAsync.whenData((ride) {
-      if (ride != null && !_hadRide) {
-        setState(() => _hadRide = true);
-      }
-    });
 
     return Scaffold(
       backgroundColor: AppColors.background,

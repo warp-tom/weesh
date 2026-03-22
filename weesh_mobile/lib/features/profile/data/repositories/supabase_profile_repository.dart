@@ -26,6 +26,8 @@ class SupabaseProfileRepository implements ProfileRepository {
       return response;
     } on PostgrestException catch (e) {
       throw Exception('Database error: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to get profile: $e');
     }
   }
 
@@ -95,11 +97,14 @@ class SupabaseProfileRepository implements ProfileRepository {
   }) async {
     try {
       final now = DateTime.now().toUtc().toIso8601String();
-      await _supabase.from('users').update({
+      final result = await _supabase.from('users').update({
         'gcash_number': gcashNumber,
         'gcash_linked_at': now,
         'updated_at': now,
-      }).eq('id', userId);
+      }).eq('id', userId).select();
+      if ((result as List).isEmpty) {
+        throw Exception('User not found: GCash link did not occur.');
+      }
     } on PostgrestException catch (e) {
       throw Exception('Database error: ${e.message}');
     } catch (e) {

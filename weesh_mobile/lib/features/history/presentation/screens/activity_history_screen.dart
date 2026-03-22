@@ -152,7 +152,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
               context,
               title: item.title,
               date: dateStr,
-              amount: '$amountPrefix₱${item.amount.toStringAsFixed(2)}',
+              amount: '$amountPrefix₱${(item.amount / 100.0).toStringAsFixed(2)}',
               status: item.status,
               icon: icon,
               iconColor: iconColor,

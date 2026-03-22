@@ -68,8 +68,12 @@ final activeRideStreamProvider = StreamProvider.autoDispose<WeeshRide?>((ref) {
         final activeStatuses = {'pending', 'accepted', 'in_progress'};
         final activeRows = rows.where((r) => activeStatuses.contains(r['status'])).toList();
         activeRows.sort((a, b) {
-          final t1 = DateTime.tryParse(a['created_at'] as String? ?? '') ?? DateTime.now();
-          final t2 = DateTime.tryParse(b['created_at'] as String? ?? '') ?? DateTime.now();
+          // Use epoch (not DateTime.now()) for invalid/missing timestamps
+          // so bad rows always sort as oldest, preserving "newest first" ordering.
+          final t1 = DateTime.tryParse(a['created_at'] as String? ?? '') ??
+              DateTime.fromMillisecondsSinceEpoch(0);
+          final t2 = DateTime.tryParse(b['created_at'] as String? ?? '') ??
+              DateTime.fromMillisecondsSinceEpoch(0);
           return t2.compareTo(t1); // newest first
         });
         return activeRows.isEmpty ? null : WeeshRide.fromMap(activeRows.first);
