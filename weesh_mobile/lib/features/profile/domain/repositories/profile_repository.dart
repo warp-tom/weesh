@@ -3,10 +3,10 @@ import 'dart:io';
 /// Defines the contract for fetching and updating user profiles,
 /// as well as uploading avatars to the backend storage.
 abstract class ProfileRepository {
+  /// Fetches the user profile from the database.
+  Future<Map<String, dynamic>?> getProfile(String userId);
+
   /// Upserts the user profile data.
-  /// 
-  /// The [userId] must match the authenticated user.
-  /// Allowed fields include 'full_name', 'email', 'avatar_url', etc.
   Future<void> upsertProfile({
     required String userId,
     required String phone,
@@ -19,5 +19,11 @@ abstract class ProfileRepository {
   Future<String> uploadAvatar({
     required String userId,
     required File imageFile,
+  });
+
+  /// Links the user's GCash number to their profile.
+  Future<void> linkGcash({
+    required String userId,
+    required String gcashNumber,
   });
 }

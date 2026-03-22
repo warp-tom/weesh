@@ -33,6 +33,13 @@ class WeeshAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0, // Prevent Material 3 dark scroll tint
       centerTitle: true,
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(
+          color: AppColors.cardBorder,
+          height: 1.0,
+        ),
+      ),
       leading: showBackButton
           ? IconButton(
               icon: const Icon(Iconsax.arrow_left_2_copy, color: AppColors.deepCharcoal),
@@ -49,10 +56,11 @@ class WeeshAppBar extends StatelessWidget implements PreferredSizeWidget {
           : null,
       title: Text(
         title,
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.notoSansJp(
           fontSize: 18,
-          fontWeight: FontWeight.w800, // Anchored typography
+          fontWeight: FontWeight.w600, // Anchored typography, elegant weight
           color: AppColors.deepCharcoal,
+          letterSpacing: -0.3,
         ),
       ),
       actions: actions,
@@ -60,5 +68,5 @@ class WeeshAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1.0);
 }

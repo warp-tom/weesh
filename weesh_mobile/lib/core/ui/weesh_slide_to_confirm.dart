@@ -14,7 +14,7 @@ class WeeshSlideToConfirm extends StatefulWidget {
     super.key,
     required this.text,
     required this.onConfirm,
-    this.backgroundColor = AppColors.terracotta,
+    this.backgroundColor = AppColors.primary,
     this.sliderColor = AppColors.surface,
     this.sliderIcon = Icons.arrow_forward_rounded,
   });
@@ -120,7 +120,7 @@ class _WeeshSlideToConfirmState extends State<WeeshSlideToConfirm> with SingleTi
                             child: SizedBox(
                               height: 24, 
                               width: 24, 
-                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.terracotta)
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)
                             )
                           )
                         : Icon(

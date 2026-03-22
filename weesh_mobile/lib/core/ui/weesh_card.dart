@@ -45,18 +45,19 @@ class WeeshCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? AppColors.surface,
         borderRadius: effectiveRadius,
-        border: borderColor != null 
-            ? Border.all(color: borderColor!, width: 1)
-            : null,
+        border: Border.all(
+          color: borderColor ?? AppColors.cardBorder, 
+          width: 1.0,
+        ),
         boxShadow: elevation > 0
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: elevation * 6,
-                  offset: Offset(0, elevation * 3),
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: elevation * 4,
+                  offset: Offset(0, elevation * 2),
                 ),
               ]
-            : AppShadows.soft, // Default to the hyper-clean soft glow
+            : null, // Default to entirely flat
       ),
       child: child,
     );

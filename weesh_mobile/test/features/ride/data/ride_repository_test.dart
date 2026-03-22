@@ -10,9 +10,39 @@ import 'package:weesh_mobile/features/ride/data/ride_repository.dart';
 import 'package:weesh_mobile/features/ride/data/isar/isar_ride.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
-class MockSupabaseQueryBuilder extends Mock implements SupabaseQueryBuilder {}
-class MockPostgrestFilterBuilder extends Mock implements PostgrestFilterBuilder<Map<String, dynamic>> {}
-class MockPostgrestTransformBuilder extends Mock implements PostgrestTransformBuilder<Map<String, dynamic>> {}
+
+class FakeTransformBuilder extends Fake implements PostgrestTransformBuilder<Map<String, dynamic>> {
+  final Map<String, dynamic>? data;
+  final Object? error;
+  FakeTransformBuilder({this.data, this.error});
+
+  @override
+  Future<R> then<R>(FutureOr<R> Function(Map<String, dynamic> value) onValue, {Function? onError}) {
+    if (error != null) return Future.error(error!);
+    return Future.value(onValue(data!));
+  }
+}
+
+class FakePostgrestListBuilder extends Fake implements PostgrestTransformBuilder<PostgrestList> {
+  @override
+  PostgrestTransformBuilder<Map<String, dynamic>> single() {
+    return FakeTransformBuilder(data: {'id': 'remote-123'});
+  }
+}
+
+class FakePostgrestFilterBuilder extends Fake implements PostgrestFilterBuilder<Map<String, dynamic>> {
+  @override
+  PostgrestTransformBuilder<PostgrestList> select([String columns = '*']) {
+    return FakePostgrestListBuilder();
+  }
+}
+
+class FakeSupabaseQueryBuilder extends Fake implements SupabaseQueryBuilder {
+  @override
+  PostgrestFilterBuilder<dynamic> insert(Object values, {bool defaultToNull = false}) {
+    return FakePostgrestFilterBuilder();
+  }
+}
 
 void main() {
   late Isar isar;
@@ -23,6 +53,8 @@ void main() {
   setUpAll(() async {
     await Isar.initializeIsarCore(download: true);
     registerFallbackValue(IsarRide());
+    registerFallbackValue(<String, dynamic>{});
+    registerFallbackValue(Object());
   });
 
   setUp(() async {
@@ -117,23 +149,14 @@ void main() {
       final syncRepo = RideRepository(AsyncData(isar), mockSupabase, disableBackgroundSync: false);
       
       final ride = IsarRide()
+        ..remoteId = ''
         ..userId = 'sync_user_success'
         ..pickupLat = 1.0 ..pickupLng = 1.0 ..dropLat = 1.0 ..dropLng = 1.0
         ..createdAt = DateTime.now() ..updatedAt = DateTime.now()
         ..syncStatus = SyncStatus.pending;
 
-      final mockQuery = MockSupabaseQueryBuilder();
-      final mockFilter = MockPostgrestFilterBuilder();
-      final mockTransform = MockPostgrestTransformBuilder();
-
-      when(() => mockSupabase.from('weesh_rides')).thenReturn(mockQuery);
-      when(() => (mockQuery as dynamic).insert(any())).thenReturn(mockFilter);
-      when(() => (mockFilter as dynamic).select()).thenReturn(mockFilter);
-      when(() => (mockFilter as dynamic).single()).thenReturn(mockTransform);
-      when(() => (mockTransform as dynamic).then(any())).thenAnswer((invocation) async {
-        final callback = invocation.positionalArguments[0] as FutureOr<Map<String, dynamic>> Function(Map<String, dynamic>);
-        return callback({'id': 'remote-123'});
-      });
+      final fakeQuery = FakeSupabaseQueryBuilder();
+      when(() => mockSupabase.from('weesh_rides')).thenAnswer((_) => fakeQuery);
 
       final completer = Completer<SyncStatus>();
       await syncRepo.saveRide(ride, onSyncComplete: (status) {
@@ -152,15 +175,13 @@ void main() {
       final syncRepo = RideRepository(AsyncData(isar), mockSupabase, disableBackgroundSync: false);
       
       final ride = IsarRide()
+        ..remoteId = ''
         ..userId = 'sync_user_fail'
         ..pickupLat = 1.0 ..pickupLng = 1.0 ..dropLat = 1.0 ..dropLng = 1.0
         ..createdAt = DateTime.now() ..updatedAt = DateTime.now()
         ..syncStatus = SyncStatus.pending;
 
-      final mockQuery = MockSupabaseQueryBuilder();
-
-      when(() => mockSupabase.from(any())).thenReturn(mockQuery);
-      when(() => (mockQuery as dynamic).insert(any())).thenThrow(Exception('Supabase connection lost'));
+      when(() => mockSupabase.from('weesh_rides')).thenThrow(Exception('Supabase connection lost'));
 
       final completer = Completer<SyncStatus>();
       await syncRepo.saveRide(ride, onSyncComplete: (status) {

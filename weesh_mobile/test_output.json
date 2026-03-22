@@ -1,21 +1,24 @@
-﻿{"protocolVersion":"0.1.1","runnerVersion":null,"pid":19428,"type":"start","time":0}
-{"suite":{"id":0,"platform":"vm","path":"C:/p-t-o/weesh_mobile/test/visual_regression/core_components_golden_test.dart"},"type":"suite","time":0}
-{"test":{"id":1,"name":"loading C:/p-t-o/weesh_mobile/test/visual_regression/core_components_golden_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":2}
-{"count":1,"time":10,"type":"allSuites"}
-
-[{"event":"test.startedProcess","params":{"vmServiceUri":null}}]
-{"testID":1,"messageType":"print","message":"Warning: A tag was used that wasn't specified in dart_test.yaml.\n  golden was used in the test \"WeeshCard and WeeshAppBar should look exactly like the Hyper-Clean design\"\n","type":"print","time":3428}
-{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":3438}
-{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":1,"line":null,"column":null,"url":null},"type":"group","time":3443}
-{"test":{"id":3,"name":"(setUpAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":12,"column":3,"url":"file:///C:/p-t-o/weesh_mobile/test/visual_regression/core_components_golden_test.dart"},"type":"testStart","time":3445}
-{"testID":3,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":3580}
-{"test":{"id":4,"name":"WeeshCard and WeeshAppBar should look exactly like the Hyper-Clean design","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":17,"root_column":3,"root_url":"file:///C:/p-t-o/weesh_mobile/test/visual_regression/core_components_golden_test.dart"},"type":"testStart","time":3581}
-{"testID":4,"messageType":"print","message":"Error: google_fonts was unable to load font PlusJakartaSans-ExtraBold because the following exception occurred:\nException: GoogleFonts.config.allowRuntimeFetching is false but font PlusJakartaSans-ExtraBold was not found in the application assets. Ensure PlusJakartaSans-ExtraBold.ttf exists in a folder that is included in your pubspec's assets.","type":"print","time":5195}
-{"testID":4,"messageType":"print","message":"\nThere is likely something wrong with your test. Please see https://github.com/flutter/packages/blob/main/packages/google_fonts/example/test for examples of how to test with google_fonts.","type":"print","time":5196}
-{"testID":4,"messageType":"print","message":"If troubleshooting doesn't solve the problem, please file an issue at https://github.com/flutter/flutter/issues/new/choose.\n","type":"print","time":5197}
-{"testID":4,"messageType":"print","message":"ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ\nThe following _Exception was thrown running a test:\nException: GoogleFonts.config.allowRuntimeFetching is false but font PlusJakartaSans-ExtraBold was\nnot found in the application assets. Ensure PlusJakartaSans-ExtraBold.ttf exists in a folder that is\nincluded in your pubspec's assets.\n\nWhen the exception was thrown, this was the stack:\n#0      loadFontIfNecessary (package:google_fonts/src/google_fonts_base.dart:179:7)\n<asynchronous suspension>\n#1      googleFontsTextStyle.<anonymous closure> (package:google_fonts/src/google_fonts_base.dart:112:22)\n<asynchronous suspension>\n\nThe test description was:\n  WeeshCard and WeeshAppBar should look exactly like the Hyper-Clean design\nΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ","type":"print","time":5200}
-{"testID":4,"error":"Test failed. See exception logs above.\nThe test description was: WeeshCard and WeeshAppBar should look exactly like the Hyper-Clean design","stackTrace":"","isFailure":false,"type":"error","time":5203}
-{"testID":4,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":5204}
-{"test":{"id":5,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":5205}
-{"testID":5,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":5212}
-{"success":false,"type":"done","time":5274}
+﻿{"protocolVersion":"0.1.1","runnerVersion":null,"pid":32660,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":3}
+{"count":1,"time":16,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":5744}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":5,"line":null,"column":null,"url":null},"type":"group","time":5752}
+{"test":{"id":3,"name":"(setUpAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":23,"column":3,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":5753}
+{"testID":3,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":5838}
+{"group":{"id":4,"suiteID":0,"parentID":2,"name":"RideRepository tests","metadata":{"skip":false,"skipReason":null},"testCount":5,"line":46,"column":3,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"group","time":5839}
+{"test":{"id":5,"name":"RideRepository tests saveRide successfully inserts a new ride","suiteID":0,"groupIDs":[2,4],"metadata":{"skip":false,"skipReason":null},"line":47,"column":5,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":5839}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":6041}
+{"test":{"id":6,"name":"RideRepository tests getPendingRides returns only rides with pending SyncStatus","suiteID":0,"groupIDs":[2,4],"metadata":{"skip":false,"skipReason":null},"line":67,"column":5,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":6041}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":6090}
+{"test":{"id":7,"name":"RideRepository tests markAsSynced updates remoteId and syncStatus","suiteID":0,"groupIDs":[2,4],"metadata":{"skip":false,"skipReason":null},"line":91,"column":5,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":6090}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":6141}
+{"test":{"id":8,"name":"RideRepository tests saveRide with background sync enabled updates to synced on success","suiteID":0,"groupIDs":[2,4],"metadata":{"skip":false,"skipReason":null},"line":116,"column":5,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":6142}
+{"testID":8,"error":"Invalid argument(s): `thenReturn` should not be used to return a Future. Instead, use `thenAnswer((_) => future)`.","stackTrace":"package:mocktail/src/mocktail.dart 231:7                  When.thenReturn\ntest\\features\\ride\\data\\ride_repository_test.dart 129:52  main.<fn>.<fn>\n","isFailure":false,"type":"error","time":6208}
+{"testID":8,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":6209}
+{"test":{"id":9,"name":"RideRepository tests saveRide with background sync enabled updates to failed on error","suiteID":0,"groupIDs":[2,4],"metadata":{"skip":false,"skipReason":null},"line":151,"column":5,"url":"file:///C:/p-t-o/weesh_mobile/test/features/ride/data/ride_repository_test.dart"},"type":"testStart","time":6210}
+{"testID":9,"error":"Bad state: Cannot call `when` within a stub response","stackTrace":"package:mocktail/src/mocktail.dart 206:5                 when\ntest\\features\\ride\\data\\ride_repository_test.dart 162:7  main.<fn>.<fn>\n","isFailure":false,"type":"error","time":6246}
+{"testID":9,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":6247}
+{"test":{"id":10,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":6248}
+{"testID":10,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":6254}
+{"success":false,"type":"done","time":6313}
