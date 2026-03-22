@@ -12,7 +12,7 @@ _$ActivityImpl _$$ActivityImplFromJson(Map<String, dynamic> json) =>
       userId: json['user_id'] as String,
       type: json['type'] as String,
       title: json['title'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      amount: _centavosFromJson(json['amount']),
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),

@@ -25,8 +25,10 @@ mixin _$Activity {
   String get userId => throw _privateConstructorUsedError;
   String get type =>
       throw _privateConstructorUsedError; // ride, pabili, parcel, top_up
-  String get title => throw _privateConstructorUsedError;
-  double get amount => throw _privateConstructorUsedError;
+  String get title =>
+      throw _privateConstructorUsedError; // Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
+  @JsonKey(fromJson: _centavosFromJson)
+  int get amount => throw _privateConstructorUsedError;
   String get status =>
       throw _privateConstructorUsedError; // Pending, In Transit, Completed, Cancelled
   @JsonKey(name: 'created_at')
@@ -50,7 +52,7 @@ abstract class $ActivityCopyWith<$Res> {
       @JsonKey(name: 'user_id') String userId,
       String type,
       String title,
-      double amount,
+      @JsonKey(fromJson: _centavosFromJson) int amount,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
@@ -98,7 +100,7 @@ class _$ActivityCopyWithImpl<$Res, $Val extends Activity>
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -128,7 +130,7 @@ abstract class _$$ActivityImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String userId,
       String type,
       String title,
-      double amount,
+      @JsonKey(fromJson: _centavosFromJson) int amount,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
@@ -174,7 +176,7 @@ class __$$ActivityImplCopyWithImpl<$Res>
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -199,7 +201,7 @@ class _$ActivityImpl implements _Activity {
       @JsonKey(name: 'user_id') required this.userId,
       required this.type,
       required this.title,
-      required this.amount,
+      @JsonKey(fromJson: _centavosFromJson) required this.amount,
       required this.status,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt});
@@ -217,8 +219,10 @@ class _$ActivityImpl implements _Activity {
 // ride, pabili, parcel, top_up
   @override
   final String title;
+// Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
   @override
-  final double amount;
+  @JsonKey(fromJson: _centavosFromJson)
+  final int amount;
   @override
   final String status;
 // Pending, In Transit, Completed, Cancelled
@@ -276,7 +280,7 @@ abstract class _Activity implements Activity {
           @JsonKey(name: 'user_id') required final String userId,
           required final String type,
           required final String title,
-          required final double amount,
+          @JsonKey(fromJson: _centavosFromJson) required final int amount,
           required final String status,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
@@ -294,8 +298,9 @@ abstract class _Activity implements Activity {
   String get type;
   @override // ride, pabili, parcel, top_up
   String get title;
-  @override
-  double get amount;
+  @override // Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
+  @JsonKey(fromJson: _centavosFromJson)
+  int get amount;
   @override
   String get status;
   @override // Pending, In Transit, Completed, Cancelled

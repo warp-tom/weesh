@@ -13,8 +13,8 @@
 -keep class com.isar.** { *; }
 
 # ── Supabase / Realtime ───────────────────────────────────────────────────────
--keep class io.supabase.** { *; }
--keep class com.realtime.** { *; }
+-keep class io.github.jan.supabase.** { *; }
+-keep class io.github.jan.supabase.realtime.** { *; }
 
 # ── MapLibre GL ───────────────────────────────────────────────────────────────
 -keep class org.maplibre.** { *; }

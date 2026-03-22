@@ -52,12 +52,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         final authState = ref.read(authControllerProvider);
         final user = authState.value;
         if (user != null) {
-          final currentMetadata = user.userMetadata ?? {};
+          // Use live form controller values so that edits made before uploading
+          // the avatar are not lost (CodeRabbit: stale metadata bug).
           await ref.read(profileControllerProvider.notifier).setupProfile(
             userId: user.id,
-            phone: user.phone ?? '',
-            fullName: currentMetadata['full_name'] as String? ?? '',
-            email: currentMetadata['email'] as String? ?? '',
+            phone: _phoneController.text,
+            fullName: _nameController.text,
+            email: _emailController.text,
             avatarFile: file,
           );
           if (mounted) {
@@ -88,7 +89,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final avatarUrl = metadata['avatar_url'] as String?;
     final phone = user?.phone ?? '';
 
-    if (!_initialized) {
+    // Guard: only initialize controllers once AND only after user data has arrived.
+    // Without the user != null guard, controllers get seeded with empty strings on
+    // the first build (while auth is still resolving) and never pick up real values.
+    if (!_initialized && user != null) {
       _nameController = TextEditingController(text: fullName);
       _phoneController = TextEditingController(text: phone);
       _emailController = TextEditingController(text: email);

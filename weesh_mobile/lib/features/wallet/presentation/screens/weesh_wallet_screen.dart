@@ -7,6 +7,7 @@ import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
+import 'package:weesh_mobile/features/profile/presentation/screens/profile_screen.dart';
 import 'package:weesh_mobile/features/wallet/application/wallet_provider.dart';
 import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
@@ -15,6 +16,8 @@ class WeeshWalletScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isGcashLinked = ref.watch(userProfileProvider).value?['gcash_number'] != null;
+
     // Bug 6: Show SnackBar when top-up (or wallet load) fails
     ref.listen<AsyncValue<dynamic>>(walletAccountNotifierProvider, (_, next) {
       next.whenOrNull(
@@ -114,11 +117,13 @@ class WeeshWalletScreen extends ConsumerWidget {
                       _buildPaymentMethodTile(
                         context,
                         title: 'GCash',
-                        subtitle: 'Link your GCash account',
+                        subtitle: isGcashLinked ? 'GCash linked' : 'Link your GCash account',
                         color: const Color(0xFF007DFE),
                         icon: Iconsax.mobile,
-                        isLinked: false,
-                        onTap: () => context.push('/gcash_link'),
+                        isLinked: isGcashLinked,
+                        onTap: () {
+                          if (!isGcashLinked) context.push('/gcash_link');
+                        },
                       ),
                       const Gap(8),
                       _buildPaymentMethodTile(

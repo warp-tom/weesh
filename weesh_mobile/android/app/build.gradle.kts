@@ -43,6 +43,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            // TODO: Replace with proper release keystore before production deployment
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
