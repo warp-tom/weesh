@@ -10,13 +10,29 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
-class ActiveRideScreen extends ConsumerWidget {
+class ActiveRideScreen extends ConsumerStatefulWidget {
   const ActiveRideScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ActiveRideScreen> createState() => _ActiveRideScreenState();
+}
+
+class _ActiveRideScreenState extends ConsumerState<ActiveRideScreen> {
+  /// True once the stream has emitted at least one non-null ride.
+  /// Used to distinguish "still searching" from "ride ended".
+  bool _hadRide = false;
+
+  @override
+  Widget build(BuildContext context) {
     final rideAsync = ref.watch(activeRideStreamProvider);
     final driverAsync = ref.watch(assignedDriverProvider);
+
+    // Track whether we have ever seen a non-null ride this session.
+    rideAsync.whenData((ride) {
+      if (ride != null && !_hadRide) {
+        setState(() => _hadRide = true);
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -69,7 +85,7 @@ class ActiveRideScreen extends ConsumerWidget {
                           const Gap(16),
                           Text('Connection lost', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16)),
                           const Gap(8),
-                          Text(error.toString(), textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(color: AppColors.textLight, fontSize: 12)),
+                          Text('An error occurred. Please try again.', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(color: AppColors.textLight, fontSize: 12)),
                           const Gap(24),
                           OutlinedButton(
                             onPressed: () => ref.refresh(activeRideStreamProvider),
@@ -80,7 +96,13 @@ class ActiveRideScreen extends ConsumerWidget {
                     ),
                   ),
                   data: (ride) {
-                    if (ride == null || ride.status == WeeshRideStatus.pending) {
+                    if (ride == null) {
+                      // If we previously had an active ride that is now gone,
+                      // it was completed or cancelled — show terminal state.
+                      if (_hadRide) return _buildRideEndedState(context);
+                      return _buildFindingState(context);
+                    }
+                    if (ride.status == WeeshRideStatus.pending) {
                       return _buildFindingState(context);
                     }
                     return _buildDriverEnRouteState(context, ride, driverAsync);
@@ -130,6 +152,61 @@ class ActiveRideScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRideEndedState(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
+          child: Container(
+            width: 4, height: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(color: AppColors.neutral200, borderRadius: BorderRadius.circular(2)),
+          ),
+        ),
+        const Gap(16),
+        Container(
+          width: 80, height: 80,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Center(
+            child: Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 48),
+          ),
+        ),
+        const Gap(24),
+        Text(
+          'Ride Completed',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 20, color: AppColors.deepCharcoal,
+            fontWeight: FontWeight.bold, height: 1.3,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const Gap(8),
+        Text(
+          'Your ride has ended. Thank you for using Weesh!',
+          style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.warmGrey),
+          textAlign: TextAlign.center,
+        ),
+        const Gap(32),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => context.go('/home'),
+            child: Text('Back to Home', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+          ),
+        ),
+        const Gap(24),
+      ],
     );
   }
 
@@ -203,15 +280,13 @@ class ActiveRideScreen extends ConsumerWidget {
     final otp = ride.requestCode.isNotEmpty ? ride.requestCode : '----';
     final fare = ride.fare != null ? '₱${ride.fare!.toStringAsFixed(2)}' : 'Computing...';
 
-    final String statusLabel = () {
-      switch (ride.status) {
-        case WeeshRideStatus.inProgress: return 'IN PROGRESS';
-        case WeeshRideStatus.completed: return 'COMPLETED';
-        case WeeshRideStatus.cancelled: return 'CANCELLED';
-        case WeeshRideStatus.accepted: return 'ACCEPTED';
-        default: return ride.status.name.toUpperCase();
-      }
-    }();
+    final String statusLabel = switch (ride.status) {
+      WeeshRideStatus.inProgress => 'IN PROGRESS',
+      WeeshRideStatus.completed => 'COMPLETED',
+      WeeshRideStatus.cancelled => 'CANCELLED',
+      WeeshRideStatus.accepted => 'ACCEPTED',
+      WeeshRideStatus.pending => 'PENDING',
+    };
 
     return SingleChildScrollView(
       child: Column(

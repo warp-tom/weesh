@@ -56,7 +56,7 @@ class WeeshRide {
 
 /// Stream provider that listens to the current user's active ride in real-time.
 /// "Active" = status is pending, accepted, or in_progress.
-final activeRideStreamProvider = StreamProvider<WeeshRide?>((ref) {
+final activeRideStreamProvider = StreamProvider.autoDispose<WeeshRide?>((ref) {
   final user = ref.watch(authControllerProvider).value;
   if (user == null) return Stream.value(null);
 
@@ -72,13 +72,12 @@ final activeRideStreamProvider = StreamProvider<WeeshRide?>((ref) {
           final t2 = DateTime.tryParse(b['created_at'] as String? ?? '') ?? DateTime.now();
           return t2.compareTo(t1); // newest first
         });
-        final activeRow = activeRows.firstOrNull;
-        return activeRow != null ? WeeshRide.fromMap(activeRow) : null;
+        return activeRows.isEmpty ? null : WeeshRide.fromMap(activeRows.first);
       });
 });
 
 /// Fetches the assigned driver's details for the active ride.
-final assignedDriverProvider = FutureProvider<Driver?>((ref) async {
+final assignedDriverProvider = FutureProvider.autoDispose<Driver?>((ref) async {
   final ride = ref.watch(activeRideStreamProvider).value;
   if (ride?.driverId == null) return null;
 

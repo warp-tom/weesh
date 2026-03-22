@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_card.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -67,7 +68,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
         itemBuilder: (_, __) => WeeshSkeleton.card(),
       ),
       error: (err, stack) => ErrorStateWidget(
-        message: 'We couldn\'t load your activities. $err',
+        message: 'We couldn\'t load your activities. Please try again.',
         onRetry: () => ref.refresh(isActive ? activeActivitiesProvider : pastActivitiesProvider),
       ),
       data: (items) {
@@ -132,7 +133,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
                 break;
               case 'top_up':
                 icon = Iconsax.wallet_add;
-                iconColor = const Color(0xFF007DFE);
+                iconColor = AppColors.gcashBlue;
                 break;
               default:
                 icon = Iconsax.receipt_2;
@@ -144,8 +145,8 @@ class ActivityHistoryScreen extends ConsumerWidget {
               iconColor = AppColors.error;
             }
 
-            final dateStr = '${item.createdAt.month}/${item.createdAt.day}/${item.createdAt.year}';
-            final amountPrefix = (item.type == 'top_up') ? '+' : '';
+            final dateStr = DateFormat('MMM d, yyyy').format(item.createdAt);
+            final amountPrefix = (typeLower == 'top_up') ? '+' : '';
 
             return _buildHistoryCard(
               context,

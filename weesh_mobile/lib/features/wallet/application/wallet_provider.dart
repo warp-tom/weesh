@@ -37,11 +37,16 @@ class WalletAccountNotifier extends AsyncNotifier<WalletAccount?> {
     if (wallet == null) return;
 
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    final next = await AsyncValue.guard(() async {
       await ref.read(walletRepositoryProvider).topUpWallet(wallet.id, amount, source);
       ref.invalidate(walletTransactionsProvider);
       return _fetchWallet();
     });
+    state = next;
+    // Rethrow so callers (e.g. CashInScreen) can catch and show an error.
+    if (next is AsyncError) {
+      Error.throwWithStackTrace(next.error as Object, next.stackTrace ?? StackTrace.current);
+    }
   }
 }
 

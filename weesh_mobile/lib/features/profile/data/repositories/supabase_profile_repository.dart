@@ -94,10 +94,11 @@ class SupabaseProfileRepository implements ProfileRepository {
     required String gcashNumber,
   }) async {
     try {
+      final now = DateTime.now().toUtc().toIso8601String();
       await _supabase.from('users').update({
         'gcash_number': gcashNumber,
-        'gcash_linked_at': DateTime.now().toUtc().toIso8601String(),
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
+        'gcash_linked_at': now,
+        'updated_at': now,
       }).eq('id', userId);
     } on PostgrestException catch (e) {
       throw Exception('Database error: ${e.message}');

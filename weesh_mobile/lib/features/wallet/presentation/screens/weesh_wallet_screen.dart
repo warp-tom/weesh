@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -12,11 +13,18 @@ import 'package:weesh_mobile/features/wallet/application/wallet_provider.dart';
 import 'package:weesh_mobile/features/wallet/domain/models/wallet_transaction.dart';
 import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
-class WeeshWalletScreen extends ConsumerWidget {
+class WeeshWalletScreen extends ConsumerStatefulWidget {
   const WeeshWalletScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WeeshWalletScreen> createState() => _WeeshWalletScreenState();
+}
+
+class _WeeshWalletScreenState extends ConsumerState<WeeshWalletScreen> {
+  bool _balanceHidden = false;
+
+  @override
+  Widget build(BuildContext context) {
     final isGcashLinked = ref.watch(userProfileProvider).value?['gcash_number'] != null;
 
     // Bug 6: Show SnackBar when top-up (or wallet load) fails
@@ -217,7 +225,7 @@ class WeeshWalletScreen extends ConsumerWidget {
                             id: 'promo_3',
                             title: '₱50 Cashback',
                             subtitle: 'Min. ₱200 top up',
-                            color: const Color(0xFF007DFE),
+                            color: AppColors.gcashBlue,
                             icon: Iconsax.wallet_add,
                           ),
                         ],
@@ -315,9 +323,9 @@ class WeeshWalletScreen extends ConsumerWidget {
                               return _buildTransactionItem(
                                 context,
                                 title: tx.title,
-                                date: '${tx.createdAt.month}/${tx.createdAt.day}/${tx.createdAt.year}',
                                 // Bug 2 fix: amount is in centavos (int), divide by 100 for PHP display
                                 amount: '$prefix₱${(tx.amount / 100).toStringAsFixed(2)}',
+                                date: DateFormat('MMM d, yyyy').format(tx.createdAt),
                                 isDeduction: isOutflow,
                                 icon: isOutflow ? Iconsax.shopping_cart : Iconsax.wallet_add,
                               );
@@ -382,40 +390,43 @@ class WeeshWalletScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₱${(balance / 100).toStringAsFixed(2)}',
+                _balanceHidden ? '₱ ••••••' : '₱${(balance / 100).toStringAsFixed(2)}',
                 style: GoogleFonts.plusJakartaSans(
                   color: Colors.white,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Iconsax.eye,
-                      size: 16,
-                      color: Colors.white70,
-                    ),
-                    const Gap(6),
-                    Text(
-                      'Show',
-                      style: GoogleFonts.plusJakartaSans(
+              GestureDetector(
+                onTap: () => setState(() => _balanceHidden = !_balanceHidden),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _balanceHidden ? Iconsax.eye_slash : Iconsax.eye,
+                        size: 16,
                         color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                  ],
+                      const Gap(6),
+                      Text(
+                        _balanceHidden ? 'Show' : 'Hide',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -35,6 +35,7 @@ class AppColors {
   static const Color deepCharcoal = Color(0xFF1A1A1A); // Sumi Ink
   static const Color warmGrey = Color(0xFF6B6B6B);     // Light Ink
   static const Color cardBorder = Color(0xFFE0DDD8);   // Stone (Subtle border)
+  static const Color gcashBlue = Color(0xFF007DFE);    // GCash brand color
 }
 
 class AppPadding {

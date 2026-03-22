@@ -22,8 +22,8 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 800),
     )..forward();
 
-    // Hold splash for 5 seconds then navigate; GoRouter redirect handles auth
-    Future.delayed(const Duration(seconds: 5), () {
+    // Hold splash for 3 seconds then navigate; GoRouter redirect handles auth
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.go('/welcome');
       }
