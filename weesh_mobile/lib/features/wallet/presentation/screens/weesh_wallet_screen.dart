@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
@@ -14,6 +15,24 @@ class WeeshWalletScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Bug 6: Show SnackBar when top-up (or wallet load) fails
+    ref.listen<AsyncValue<dynamic>>(walletAccountNotifierProvider, (_, next) {
+      next.whenOrNull(
+        error: (err, _) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                err.toString().replaceFirst('Exception: ', ''),
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      );
+    });
+
     final walletState = ref.watch(walletAccountNotifierProvider);
     final transactionsState = ref.watch(walletTransactionsProvider);
 
@@ -23,7 +42,7 @@ class WeeshWalletScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (err, stack) => Center(child: Text('Error: $err', style: GoogleFonts.inter(color: AppColors.error))),
         data: (wallet) {
-          final balance = wallet?.balance ?? 0.0;
+          final balance = wallet?.balance ?? 0;
           return CustomScrollView(
             slivers: [
               // ─── Gradient Balance Header ───
@@ -41,15 +60,16 @@ class WeeshWalletScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildActionButton(
-                        context,
-                        title: 'Top Up',
-                        icon: Iconsax.wallet_add,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          ref.read(walletAccountNotifierProvider.notifier).topUp(100.0, 'GCash Mock (Auto)');
-                        },
-                      ),
+                      if (kDebugMode)
+                        _buildActionButton(
+                          context,
+                          title: 'Top-Up\n(Mock)',
+                          icon: Iconsax.wallet_add,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            ref.read(walletAccountNotifierProvider.notifier).topUp(10000, 'GCash Mock (Auto)');
+                          },
+                        ),
                       _buildActionButton(
                         context,
                         title: 'Send',
@@ -114,7 +134,7 @@ class WeeshWalletScreen extends ConsumerWidget {
                       _buildPaymentMethodTile(
                         context,
                         title: 'WeeshPay',
-                        subtitle: '₱${balance.toStringAsFixed(2)} available',
+                        subtitle: '₱${(balance / 100).toStringAsFixed(2)} available',
                         color: AppColors.secondary,
                         icon: Iconsax.card,
                         isLinked: true,
@@ -290,7 +310,8 @@ class WeeshWalletScreen extends ConsumerWidget {
                                 context,
                                 title: tx.title,
                                 date: '${tx.createdAt.month}/${tx.createdAt.day}/${tx.createdAt.year}',
-                                amount: '$prefix₱${tx.amount.toStringAsFixed(2)}',
+                                // Bug 2 fix: amount is in centavos (int), divide by 100 for PHP display
+                                amount: '$prefix₱${(tx.amount / 100).toStringAsFixed(2)}',
                                 isDeduction: isOutflow,
                                 icon: isOutflow ? Iconsax.shopping_cart : Iconsax.wallet_add,
                               );
@@ -310,7 +331,7 @@ class WeeshWalletScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBalanceHeader(BuildContext context, double balance) {
+  Widget _buildBalanceHeader(BuildContext context, int balance) {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
@@ -355,7 +376,7 @@ class WeeshWalletScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₱${balance.toStringAsFixed(2)}',
+                '₱${(balance / 100).toStringAsFixed(2)}',
                 style: GoogleFonts.plusJakartaSans(
                   color: Colors.white,
                   fontSize: 36,

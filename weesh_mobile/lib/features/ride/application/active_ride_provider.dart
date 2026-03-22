@@ -66,7 +66,13 @@ final activeRideStreamProvider = StreamProvider<WeeshRide?>((ref) {
       .eq('user_id', user.id)
       .map((rows) {
         final activeStatuses = {'pending', 'accepted', 'in_progress'};
-        final activeRow = rows.where((r) => activeStatuses.contains(r['status'])).firstOrNull;
+        final activeRows = rows.where((r) => activeStatuses.contains(r['status'])).toList();
+        activeRows.sort((a, b) {
+          final t1 = DateTime.tryParse(a['created_at'] as String? ?? '') ?? DateTime.now();
+          final t2 = DateTime.tryParse(b['created_at'] as String? ?? '') ?? DateTime.now();
+          return t2.compareTo(t1); // newest first
+        });
+        final activeRow = activeRows.firstOrNull;
         return activeRow != null ? WeeshRide.fromMap(activeRow) : null;
       });
 });

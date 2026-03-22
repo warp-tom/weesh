@@ -23,7 +23,8 @@ mixin _$WalletTransaction {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'wallet_id')
   String get walletId => throw _privateConstructorUsedError;
-  double get amount => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _centavosFromJson)
+  int get amount => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String get type =>
@@ -46,7 +47,7 @@ abstract class $WalletTransactionCopyWith<$Res> {
   $Res call(
       {String id,
       @JsonKey(name: 'wallet_id') String walletId,
-      double amount,
+      @JsonKey(fromJson: _centavosFromJson) int amount,
       String title,
       String? description,
       String type,
@@ -86,7 +87,7 @@ class _$WalletTransactionCopyWithImpl<$Res, $Val extends WalletTransaction>
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -118,7 +119,7 @@ abstract class _$$WalletTransactionImplCopyWith<$Res>
   $Res call(
       {String id,
       @JsonKey(name: 'wallet_id') String walletId,
-      double amount,
+      @JsonKey(fromJson: _centavosFromJson) int amount,
       String title,
       String? description,
       String type,
@@ -156,7 +157,7 @@ class __$$WalletTransactionImplCopyWithImpl<$Res>
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -183,7 +184,7 @@ class _$WalletTransactionImpl implements _WalletTransaction {
   const _$WalletTransactionImpl(
       {required this.id,
       @JsonKey(name: 'wallet_id') required this.walletId,
-      required this.amount,
+      @JsonKey(fromJson: _centavosFromJson) required this.amount,
       required this.title,
       this.description,
       required this.type,
@@ -198,7 +199,8 @@ class _$WalletTransactionImpl implements _WalletTransaction {
   @JsonKey(name: 'wallet_id')
   final String walletId;
   @override
-  final double amount;
+  @JsonKey(fromJson: _centavosFromJson)
+  final int amount;
   @override
   final String title;
   @override
@@ -256,7 +258,7 @@ abstract class _WalletTransaction implements WalletTransaction {
   const factory _WalletTransaction(
           {required final String id,
           @JsonKey(name: 'wallet_id') required final String walletId,
-          required final double amount,
+          @JsonKey(fromJson: _centavosFromJson) required final int amount,
           required final String title,
           final String? description,
           required final String type,
@@ -272,7 +274,8 @@ abstract class _WalletTransaction implements WalletTransaction {
   @JsonKey(name: 'wallet_id')
   String get walletId;
   @override
-  double get amount;
+  @JsonKey(fromJson: _centavosFromJson)
+  int get amount;
   @override
   String get title;
   @override

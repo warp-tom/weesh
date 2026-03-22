@@ -7,15 +7,13 @@ import 'package:weesh_mobile/core/ui/weesh_card.dart';
 import 'dart:io';
 
 class _FakeHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (cert, host, port) => true;
-  }
+  // Purposefully removed badCertificateCallback to avoid globally disabling TLS checks.
 }
 
 void main() {
   setUpAll(() {
+    // WeeshAppBar uses GoogleFonts.notoSansJp() which is not a bundled asset.
+    // Allow runtime fetching; FakeHttpOverrides handles network gracefully.
     GoogleFonts.config.allowRuntimeFetching = true;
     HttpOverrides.global = _FakeHttpOverrides();
   });

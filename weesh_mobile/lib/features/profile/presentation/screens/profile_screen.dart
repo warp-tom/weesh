@@ -41,8 +41,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
     if (picked == null) return;
 
-    setState(() => _pendingAvatar = File(picked.path));
-
     final user = ref.read(authControllerProvider).value;
     if (user == null) return;
 
@@ -52,15 +50,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         user.userMetadata?['full_name'] as String? ?? '';
     final existingPhone = existingProfile?['phone'] as String? ?? user.phone ?? '';
 
-    await ref.read(profileControllerProvider.notifier).setupProfile(
-          userId: user.id,
-          phone: existingPhone,
-          fullName: existingName,
-          avatarFile: _pendingAvatar,
-        );
+    try {
+      await ref.read(profileControllerProvider.notifier).setupProfile(
+            userId: user.id,
+            phone: existingPhone,
+            fullName: existingName,
+            avatarFile: File(picked.path),
+          );
 
-    // Refresh profile data
-    ref.invalidate(userProfileProvider);
+      if (mounted) {
+        // Only render pending avatar after successful edge completion
+        setState(() => _pendingAvatar = File(picked.path));
+        // Refresh profile data
+        ref.invalidate(userProfileProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update avatar: $e')),
+        );
+      }
+    }
   }
 
   @override

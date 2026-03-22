@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,12 +62,18 @@ class _GcashLinkScreenState extends ConsumerState<GcashLinkScreen> {
       return;
     }
 
-    // Hardcoded OTP for testing — only '123456' is accepted
-    if (_otpValue != '123456') {
+    // Support mock verification in debug mode
+    bool isMockOTP = false;
+    if (kDebugMode && _otpValue == '123456') {
+      isMockOTP = true;
+    }
+
+    // Replace with real provider later
+    if (!isMockOTP) {
       HapticFeedback.heavyImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Incorrect code. Use 123456 to verify.'),
+          content: Text(kDebugMode ? 'Incorrect code. Use 123456 to verify in debug mode.' : 'Incorrect code.'),
           backgroundColor: Colors.red,
         ),
       );

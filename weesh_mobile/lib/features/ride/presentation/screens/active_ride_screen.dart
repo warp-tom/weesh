@@ -59,7 +59,26 @@ class ActiveRideScreen extends ConsumerWidget {
                 top: false,
                 child: rideAsync.when(
                   loading: () => _buildFindingState(context),
-                  error: (_, __) => _buildFindingState(context),
+                  error: (error, _) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Iconsax.warning_2, color: AppColors.error, size: 48),
+                          const Gap(16),
+                          Text('Connection lost', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const Gap(8),
+                          Text(error.toString(), textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(color: AppColors.textLight, fontSize: 12)),
+                          const Gap(24),
+                          OutlinedButton(
+                            onPressed: () => ref.refresh(activeRideStreamProvider),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   data: (ride) {
                     if (ride == null || ride.status == WeeshRideStatus.pending) {
                       return _buildFindingState(context);

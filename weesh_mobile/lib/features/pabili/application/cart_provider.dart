@@ -17,6 +17,8 @@ class CartItem {
     this.customization,
   });
 
+  String get lineItemKey => '${id}_${customization ?? ''}';
+
   CartItem copyWith({int? quantity}) {
     return CartItem(
       id: id,
@@ -30,44 +32,25 @@ class CartItem {
 }
 
 class CartNotifier extends StateNotifier<List<CartItem>> {
-  CartNotifier() : super([
-    // Initial mock data to match current UI
-    CartItem(
-      id: '1',
-      name: 'Pancit Canton (Original)',
-      price: 40.0,
-      quantity: 2,
-      imageUrl: 'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&q=80&w=150',
-      customization: 'Extra spicy please',
-    ),
-    CartItem(
-      id: '2',
-      name: 'Cobra Energy Drink',
-      price: 25.0,
-      quantity: 1,
-      imageUrl: 'https://images.unsplash.com/photo-1622542796254-54f0582caaf7?auto=format&fit=crop&q=80&w=150',
-    ),
-    CartItem(
-      id: '3',
-      name: 'Gardenia Loaf Bread',
-      price: 85.0,
-      quantity: 1,
-      imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=150',
-    ),
-  ]);
+  CartNotifier() : super([]);
 
   void addItem(CartItem item) {
-    state = [...state, item];
+    final idx = state.indexWhere((existing) => existing.lineItemKey == item.lineItemKey);
+    if (idx >= 0) {
+      updateQuantity(item.lineItemKey, item.quantity);
+    } else {
+      state = [...state, item];
+    }
   }
 
-  void removeItem(String id) {
-    state = state.where((item) => item.id != id).toList();
+  void removeItem(String lineItemKey) {
+    state = state.where((item) => item.lineItemKey != lineItemKey).toList();
   }
 
-  void updateQuantity(String id, int delta) {
+  void updateQuantity(String lineItemKey, int delta) {
     state = [
       for (final item in state)
-        if (item.id == id)
+        if (item.lineItemKey == lineItemKey)
           item.copyWith(quantity: (item.quantity + delta).clamp(1, 99))
         else
           item,

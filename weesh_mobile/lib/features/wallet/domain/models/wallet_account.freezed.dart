@@ -23,7 +23,8 @@ mixin _$WalletAccount {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
-  double get balance => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _centavosFromJson)
+  int get balance => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -38,7 +39,9 @@ abstract class $WalletAccountCopyWith<$Res> {
       _$WalletAccountCopyWithImpl<$Res, WalletAccount>;
   @useResult
   $Res call(
-      {String id, @JsonKey(name: 'user_id') String userId, double balance});
+      {String id,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(fromJson: _centavosFromJson) int balance});
 }
 
 /// @nodoc
@@ -70,7 +73,7 @@ class _$WalletAccountCopyWithImpl<$Res, $Val extends WalletAccount>
       balance: null == balance
           ? _value.balance
           : balance // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
     ) as $Val);
   }
 }
@@ -84,7 +87,9 @@ abstract class _$$WalletAccountImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id, @JsonKey(name: 'user_id') String userId, double balance});
+      {String id,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(fromJson: _centavosFromJson) int balance});
 }
 
 /// @nodoc
@@ -114,7 +119,7 @@ class __$$WalletAccountImplCopyWithImpl<$Res>
       balance: null == balance
           ? _value.balance
           : balance // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
     ));
   }
 }
@@ -125,7 +130,7 @@ class _$WalletAccountImpl implements _WalletAccount {
   const _$WalletAccountImpl(
       {required this.id,
       @JsonKey(name: 'user_id') required this.userId,
-      this.balance = 0.0});
+      @JsonKey(fromJson: _centavosFromJson) this.balance = 0});
 
   factory _$WalletAccountImpl.fromJson(Map<String, dynamic> json) =>
       _$$WalletAccountImplFromJson(json);
@@ -136,8 +141,8 @@ class _$WalletAccountImpl implements _WalletAccount {
   @JsonKey(name: 'user_id')
   final String userId;
   @override
-  @JsonKey()
-  final double balance;
+  @JsonKey(fromJson: _centavosFromJson)
+  final int balance;
 
   @override
   String toString() {
@@ -174,9 +179,10 @@ class _$WalletAccountImpl implements _WalletAccount {
 
 abstract class _WalletAccount implements WalletAccount {
   const factory _WalletAccount(
-      {required final String id,
-      @JsonKey(name: 'user_id') required final String userId,
-      final double balance}) = _$WalletAccountImpl;
+          {required final String id,
+          @JsonKey(name: 'user_id') required final String userId,
+          @JsonKey(fromJson: _centavosFromJson) final int balance}) =
+      _$WalletAccountImpl;
 
   factory _WalletAccount.fromJson(Map<String, dynamic> json) =
       _$WalletAccountImpl.fromJson;
@@ -187,7 +193,8 @@ abstract class _WalletAccount implements WalletAccount {
   @JsonKey(name: 'user_id')
   String get userId;
   @override
-  double get balance;
+  @JsonKey(fromJson: _centavosFromJson)
+  int get balance;
   @override
   @JsonKey(ignore: true)
   _$$WalletAccountImplCopyWith<_$WalletAccountImpl> get copyWith =>

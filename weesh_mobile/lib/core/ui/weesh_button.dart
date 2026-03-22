@@ -67,7 +67,7 @@ class _WeeshButtonState extends State<WeeshButton> {
           color: _backgroundColor,
           borderRadius: AppRadius.buttonRadius,
           border: widget._variant == _ButtonVariant.ghost
-              ? Border.all(color: AppColors.terracotta, width: 1.5)
+              ? Border.all(color: AppColors.primary, width: 1.5)
               : null,
         ),
         child: widget.isLoading
@@ -78,7 +78,7 @@ class _WeeshButtonState extends State<WeeshButton> {
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: widget._variant == _ButtonVariant.ghost
-                        ? AppColors.terracotta
+                        ? AppColors.primary
                         : Colors.white,
                   ),
                 ),

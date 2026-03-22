@@ -115,15 +115,20 @@ class _ParcelServiceTypeScreenState extends State<ParcelServiceTypeScreen> {
                           separatorBuilder: (_, __) => const Gap(12),
                           itemBuilder: (context, index) {
                             final v = _vehicles[index];
-                            return _VehicleCard(
-                              icon: v['icon'] as IconData,
-                              name: v['name'] as String,
-                              time: v['time'] as String,
-                              isSelected: _selectedVehicle == index,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _selectedVehicle = index);
-                              },
+                            return Semantics(
+                              label: 'Vehicle ${v['name']}, ${v['time']}, fee ₱${v['fee']}',
+                              button: true,
+                              selected: _selectedVehicle == index,
+                              child: _VehicleCard(
+                                icon: v['icon'] as IconData,
+                                name: v['name'] as String,
+                                time: v['time'] as String,
+                                isSelected: _selectedVehicle == index,
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _selectedVehicle = index);
+                                },
+                              ),
                             );
                           },
                         ),
@@ -145,50 +150,55 @@ class _ParcelServiceTypeScreenState extends State<ParcelServiceTypeScreen> {
                           final s = _sizes[index];
                           final isSelected = _selectedSize == index;
                           return Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _selectedSize = index);
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(
-                                  right: index < _sizes.length - 1 ? 8 : 0,
-                                ),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.background,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: isSelected
-                                      ? null
-                                      : Border.all(
-                                          color: AppColors.neutral200,
+                            child: Semantics(
+                              label: 'Size ${s['label']}, capacity ${s['desc']}, surcharge ₱${s['surcharge']}',
+                              button: true,
+                              selected: isSelected,
+                              child: GestureDetector(
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _selectedSize = index);
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    right: index < _sizes.length - 1 ? 8 : 0,
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.background,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: isSelected
+                                        ? null
+                                        : Border.all(
+                                            color: AppColors.neutral200,
+                                          ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        s['label'] as String,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : AppColors.deepCharcoal,
                                         ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      s['label'] as String,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : AppColors.deepCharcoal,
                                       ),
-                                    ),
-                                    const Gap(2),
-                                    Text(
-                                      s['desc'] as String,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 11,
-                                        color: isSelected
-                                            ? Colors.white70
-                                            : AppColors.neutral500,
+                                      const Gap(2),
+                                      Text(
+                                        s['desc'] as String,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          color: isSelected
+                                              ? Colors.white70
+                                              : AppColors.neutral500,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -325,7 +335,15 @@ class _ParcelServiceTypeScreenState extends State<ParcelServiceTypeScreen> {
                       ),
                       const Gap(20),
                       FilledButton(
-                        onPressed: () => context.push('/parcel_tracking'),
+                        onPressed: () => context.push(
+                          '/parcel_tracking',
+                          extra: {
+                            'vehicle': _vehicles[_selectedVehicle],
+                            'size': _sizes[_selectedSize],
+                            'insurance': _hasInsurance,
+                            'totalFee': _totalFee,
+                          },
+                        ),
                         style: FilledButton.styleFrom(
                           padding:
                               const EdgeInsets.symmetric(vertical: 16),

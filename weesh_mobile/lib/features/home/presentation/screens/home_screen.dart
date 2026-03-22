@@ -56,7 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final authState = ref.watch(authControllerProvider);
     final userName =
         authState.value?.userMetadata?['full_name'] as String? ??
-            'Juan Dela Cruz';
+            'Rider';
 
     return Scaffold(
       backgroundColor: AppColors.background,

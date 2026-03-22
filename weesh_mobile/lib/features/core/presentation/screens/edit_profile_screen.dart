@@ -19,6 +19,20 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _isPickingImage = false;
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _dobController;
+  bool _initialized = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _dobController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickAndUploadImage() async {
     if (_isPickingImage) return;
@@ -68,11 +82,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final user = authState.value;
     final metadata = user?.userMetadata ?? {};
     
-    final fullName = metadata['full_name'] as String? ?? 'Juan Dela Cruz';
+    final fullName = metadata['full_name'] as String? ?? '';
     final email = metadata['email'] as String? ?? '';
-    final dob = metadata['date_of_birth'] as String? ?? 'Not set';
+    final dob = metadata['date_of_birth'] as String? ?? '';
     final avatarUrl = metadata['avatar_url'] as String?;
-    final phone = user?.phone ?? '+63 9xx xxx xxxx';
+    final phone = user?.phone ?? '';
+
+    if (!_initialized) {
+      _nameController = TextEditingController(text: fullName);
+      _phoneController = TextEditingController(text: phone);
+      _emailController = TextEditingController(text: email);
+      _dobController = TextEditingController(text: dob);
+      _initialized = true;
+    }
 
     final profileState = ref.watch(profileControllerProvider);
 
@@ -129,22 +151,32 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const Gap(40),
 
                   // Form Fields
-                  _ProfileField(label: 'Full Name', initialValue: fullName, icon: Iconsax.user_edit),
+                  _ProfileField(label: 'Full Name', controller: _nameController, icon: Iconsax.user_edit),
                   const Gap(24),
-                  _ProfileField(label: 'Phone Number', initialValue: phone, icon: Iconsax.call, isReadOnly: true),
+                  _ProfileField(label: 'Phone Number', controller: _phoneController, icon: Iconsax.call, isReadOnly: true),
                   const Gap(24),
-                  _ProfileField(label: 'Email Address', initialValue: email, icon: Iconsax.sms, isReadOnly: true),
+                  _ProfileField(label: 'Email Address', controller: _emailController, icon: Iconsax.sms, isReadOnly: true),
                   const Gap(24),
-                  _ProfileField(label: 'Date of Birth', initialValue: dob, icon: Iconsax.calendar, isReadOnly: true),
+                  _ProfileField(label: 'Date of Birth', controller: _dobController, icon: Iconsax.calendar, isReadOnly: true),
 
                   const Gap(48),
                   
                   WeeshButton.filled(
                     label: 'Save Changes',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Profile updated successfully'), backgroundColor: AppColors.primary),
+                    isLoading: profileState.isLoading,
+                    onTap: () async {
+                      if (user == null) return;
+                      await ref.read(profileControllerProvider.notifier).setupProfile(
+                        userId: user.id,
+                        phone: _phoneController.text,
+                        fullName: _nameController.text,
+                        email: _emailController.text,
                       );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Profile updated successfully'), backgroundColor: AppColors.primary),
+                        );
+                      }
                     },
                   ),
                 ],
@@ -160,13 +192,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 class _ProfileField extends StatelessWidget {
   const _ProfileField({
     required this.label,
-    required this.initialValue,
+    required this.controller,
     required this.icon,
     this.isReadOnly = false,
   });
 
   final String label;
-  final String initialValue;
+  final TextEditingController controller;
   final IconData icon;
   final bool isReadOnly;
 
@@ -178,7 +210,7 @@ class _ProfileField extends StatelessWidget {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textLight)),
         const Gap(8),
         TextFormField(
-          initialValue: initialValue,
+          controller: controller,
           readOnly: isReadOnly,
           style: TextStyle(
             color: isReadOnly ? AppColors.textLight : AppColors.textBody,

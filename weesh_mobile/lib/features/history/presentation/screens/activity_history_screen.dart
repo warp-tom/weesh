@@ -114,8 +114,10 @@ class ActivityHistoryScreen extends ConsumerWidget {
 
             IconData icon;
             Color iconColor;
+            final typeLower = item.type.toLowerCase();
+            final statusLower = item.status.toLowerCase();
 
-            switch (item.type.toLowerCase()) {
+            switch (typeLower) {
               case 'ride':
                 icon = Iconsax.car;
                 iconColor = AppColors.primary;
@@ -138,7 +140,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
             }
 
             // Adjust colors based on status
-            if (item.status.toLowerCase() == 'cancelled') {
+            if (statusLower == 'cancelled') {
               iconColor = AppColors.error;
             }
 
@@ -169,9 +171,10 @@ class ActivityHistoryScreen extends ConsumerWidget {
     required IconData icon,
     required Color iconColor,
   }) {
-    final bool isCancelled = status.toLowerCase() == 'cancelled';
-    final bool isCompleted = status.toLowerCase() == 'completed';
-    final bool isPending = status.toLowerCase() == 'pending' || status.toLowerCase() == 'in transit';
+    final statusLower = status.toLowerCase();
+    final bool isCancelled = statusLower == 'cancelled';
+    final bool isCompleted = statusLower == 'completed';
+    final bool isPending = statusLower == 'pending' || statusLower == 'in transit';
 
     Color statusColor;
     if (isCancelled) {
@@ -271,7 +274,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
               ),
               if (isCompleted)
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: null,
                   icon: const Icon(Icons.refresh_rounded, size: 16),
                   label: Text(
                     'Rebook',

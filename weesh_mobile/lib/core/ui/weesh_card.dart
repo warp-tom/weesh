@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 
 /// Canonical flat card widget for the Weesh design system.
-/// Uses [AppShadows.soft] by default on a pure white background 
-/// to create modern spatial depth without heavy colors or borders.
+/// Renders flat by default (no shadow). When [elevation] > 0, applies
+/// a subtle shadow for spatial depth. Always draws a 1px border.
 class WeeshCard extends StatelessWidget {
   const WeeshCard({
     super.key,
@@ -69,8 +69,8 @@ class WeeshCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: effectiveRadius,
-          splashColor: AppColors.terracotta.withValues(alpha: 0.08),
-          highlightColor: AppColors.terracotta.withValues(alpha: 0.04),
+          splashColor: AppColors.primary.withValues(alpha: 0.08),
+          highlightColor: AppColors.primary.withValues(alpha: 0.04),
           child: card,
         ),
       );

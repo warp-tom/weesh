@@ -54,10 +54,18 @@ void main() {
     GoogleFonts.config.allowRuntimeFetching = true; 
     HttpOverrides.global = _FakeHttpOverrides();
     
-    // Completely mock the platform views channel to bypass Mapbox rendering crashes
-    const MethodChannel channel = MethodChannel('flutter/platform_views');
+    // Mock Mapbox platform views channel
+    const MethodChannel platformViews = MethodChannel('flutter/platform_views');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        .setMockMethodCallHandler(platformViews, (_) async => null);
+
+    // Mock permission_handler channel so _checkLocationPermission doesn't crash
+    const MethodChannel permissions =
+        MethodChannel('flutter.baseflow.com/permissions/methods');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(permissions, (MethodCall call) async {
+      if (call.method == 'checkPermissionStatus') return 1; // granted
+      if (call.method == 'requestPermissions') return {call.arguments: 1};
       return null;
     });
   });

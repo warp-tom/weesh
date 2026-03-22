@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gap/gap.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
@@ -32,27 +33,30 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: true,
       appBar: const WeeshAppBar(
         backgroundColor: AppColors.background,
         title: 'Verification',
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // reverse: true keeps the Verify button anchored at the bottom,
+          // rising above the keyboard naturally when it opens.
+          reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppPadding.section),
+              const Gap(AppPadding.section),
               Text(
                 'Enter the 6-digit code sent to\n${widget.phone}',
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              const Gap(32),
               // LayoutBuilder ensures pin boxes never overflow the available width
               LayoutBuilder(
                 builder: (context, constraints) {
-                  // 6 boxes + 5 gaps of 8px each, all fitting within available width
                   const int pinLength = 6;
                   const double totalSpacing = 8.0 * (pinLength - 1);
                   final double fieldWidth =
@@ -88,7 +92,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const Gap(16),
               Center(
                 child: TextButton(
                   onPressed: authState.isLoading
@@ -113,7 +117,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   child: const Text('Resend Code'),
                 ),
               ),
-              const Spacer(),
+              // Fixed gap instead of Spacer — never causes overflow when keyboard opens.
+              const Gap(32),
               Padding(
                 padding: const EdgeInsets.only(bottom: AppPadding.horizontal),
                 child: FilledButton(

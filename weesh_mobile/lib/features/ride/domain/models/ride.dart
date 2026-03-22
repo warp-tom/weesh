@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 
 enum RideStatus { pending, assigned, inProgress, completed, cancelled }
 
+class _Sentinel {
+  const _Sentinel();
+}
+const _sentinel = _Sentinel();
+
 @immutable
 class Ride {
   const Ride({
@@ -56,10 +61,10 @@ class Ride {
       );
 
   Ride copyWith({
-    String? driverId,
-    RideStatus? status,
-    String? otp,
-    double? fare,
+    Object? driverId = _sentinel,
+    Object? status = _sentinel,
+    Object? otp = _sentinel,
+    Object? fare = _sentinel,
   }) =>
       Ride(
         id: id,
@@ -68,11 +73,11 @@ class Ride {
         pickupLng: pickupLng,
         dropLat: dropLat,
         dropLng: dropLng,
-        status: status ?? this.status,
+        status: status == _sentinel ? this.status : status as RideStatus,
         createdAt: createdAt,
-        driverId: driverId ?? this.driverId,
-        otp: otp ?? this.otp,
-        fare: fare ?? this.fare,
+        driverId: driverId == _sentinel ? this.driverId : driverId as String?,
+        otp: otp == _sentinel ? this.otp : otp as String?,
+        fare: fare == _sentinel ? this.fare : fare as double?,
         vehicleType: vehicleType,
       );
 }

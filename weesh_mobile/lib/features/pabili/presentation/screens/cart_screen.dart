@@ -9,11 +9,24 @@ import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
 import 'package:gap/gap.dart';
 import 'package:weesh_mobile/features/pabili/application/cart_provider.dart';
 
-class CartScreen extends ConsumerWidget {
+class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends ConsumerState<CartScreen> {
+  final TextEditingController _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final subtotal = ref.watch(cartSubtotalProvider);
     const deliveryFee = 49.0;
@@ -147,7 +160,7 @@ class CartScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Aling Nena\'s Sari-Sari',
+                  'Your Pabili Request',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -206,6 +219,7 @@ class CartScreen extends ConsumerWidget {
         ),
         const Gap(8),
         TextField(
+          controller: _noteController,
           maxLines: 2,
           decoration: InputDecoration(
             hintText: 'e.g. Please check expiry dates carefully',
@@ -437,21 +451,23 @@ class _CartItemCard extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                GestureDetector(
-                  onTap: () {
+                IconButton(
+                  onPressed: () {
                     HapticFeedback.lightImpact();
                     if (item.quantity > 1) {
                       ref
                           .read(cartProvider.notifier)
-                          .updateQuantity(item.id, -1);
+                          .updateQuantity(item.lineItemKey, -1);
                     } else {
-                      ref.read(cartProvider.notifier).removeItem(item.id);
+                      ref.read(cartProvider.notifier).removeItem(item.lineItemKey);
                     }
                   },
-                  child: const Icon(Icons.remove,
-                      size: 16, color: AppColors.deepCharcoal),
+                  icon: const Icon(Icons.remove, size: 16, color: AppColors.deepCharcoal),
+                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                  padding: EdgeInsets.zero,
+                  tooltip: 'Decrease quantity',
                 ),
-                const Gap(10),
+                const Gap(4),
                 Text(
                   item.quantity.toString(),
                   style: GoogleFonts.plusJakartaSans(
@@ -460,14 +476,16 @@ class _CartItemCard extends ConsumerWidget {
                     color: AppColors.deepCharcoal,
                   ),
                 ),
-                const Gap(10),
-                GestureDetector(
-                  onTap: () {
+                const Gap(4),
+                IconButton(
+                  onPressed: () {
                     HapticFeedback.lightImpact();
-                    ref.read(cartProvider.notifier).updateQuantity(item.id, 1);
+                    ref.read(cartProvider.notifier).updateQuantity(item.lineItemKey, 1);
                   },
-                  child: const Icon(Icons.add,
-                      size: 16, color: AppColors.deepCharcoal),
+                  icon: const Icon(Icons.add, size: 16, color: AppColors.deepCharcoal),
+                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                  padding: EdgeInsets.zero,
+                  tooltip: 'Increase quantity',
                 ),
               ],
             ),

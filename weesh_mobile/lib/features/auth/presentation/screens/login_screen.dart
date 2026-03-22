@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
@@ -25,29 +26,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    // When the soft keyboard is open, viewInsets.bottom > 0.
+    // We use this to collapse the Lottie animation and free up space.
+    final bool keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      // resizeToAvoidBottomInset: true (Flutter default) shrinks the body
+      // when the keyboard appears. SingleChildScrollView handles the rest.
+      resizeToAvoidBottomInset: true,
       appBar: const WeeshAppBar(
         backgroundColor: AppColors.background,
         title: 'Login',
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // reverse: true anchors content at the bottom of the scroll view,
+          // so the Continue button rises naturally above the keyboard.
+          reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Lottie animation for phone authentication
-              SizedBox(
-                height: 220,
-                child: Lottie.asset(
-                  'assets/lottie/login.json',
-                  fit: BoxFit.contain,
-                  repeat: true,
-                ),
+              // Lottie animates out when keyboard is open to save space.
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: keyboardOpen ? 0 : 200,
+                child: keyboardOpen
+                    ? const SizedBox.shrink()
+                    : Lottie.asset(
+                        'assets/lottie/login.json',
+                        fit: BoxFit.contain,
+                        repeat: true,
+                      ),
               ),
-              const SizedBox(height: AppPadding.section),
+              const Gap(AppPadding.section),
               Text(
                 'Enter your mobile number to get started',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -55,11 +68,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const Gap(20),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 style: Theme.of(context).textTheme.bodyLarge,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   labelText: 'Mobile Number',
                   prefixText: '+63 ',
@@ -69,7 +83,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              const Spacer(),
+              // Fixed gap replaces Spacer — never causes overflow when keyboard opens.
+              const Gap(32),
               Padding(
                 padding: const EdgeInsets.only(bottom: AppPadding.horizontal),
                 child: FilledButton(

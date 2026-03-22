@@ -10,7 +10,7 @@ _$WalletAccountImpl _$$WalletAccountImplFromJson(Map<String, dynamic> json) =>
     _$WalletAccountImpl(
       id: json['id'] as String,
       userId: json['user_id'] as String,
-      balance: (json['balance'] as num?)?.toDouble() ?? 0.0,
+      balance: json['balance'] == null ? 0 : _centavosFromJson(json['balance']),
     );
 
 Map<String, dynamic> _$$WalletAccountImplToJson(_$WalletAccountImpl instance) =>

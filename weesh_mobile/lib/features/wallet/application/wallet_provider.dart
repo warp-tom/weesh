@@ -21,7 +21,7 @@ class WalletAccountNotifier extends AsyncNotifier<WalletAccount?> {
   }
 
   Future<WalletAccount?> _fetchWallet() async {
-    final user = ref.read(authControllerProvider).value;
+    final user = ref.watch(authControllerProvider).value;
     if (user == null) return null;
 
     return await ref.read(walletRepositoryProvider).getOrCreateWallet(user.id);
@@ -32,7 +32,7 @@ class WalletAccountNotifier extends AsyncNotifier<WalletAccount?> {
     state = await AsyncValue.guard(() => _fetchWallet());
   }
 
-  Future<void> topUp(double amount, String source) async {
+  Future<void> topUp(int amount, String source) async {
     final wallet = state.value;
     if (wallet == null) return;
 

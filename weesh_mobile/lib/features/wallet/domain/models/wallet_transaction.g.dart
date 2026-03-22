@@ -11,7 +11,7 @@ _$WalletTransactionImpl _$$WalletTransactionImplFromJson(
     _$WalletTransactionImpl(
       id: json['id'] as String,
       walletId: json['wallet_id'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      amount: _centavosFromJson(json['amount']),
       title: json['title'] as String,
       description: json['description'] as String?,
       type: json['type'] as String,
