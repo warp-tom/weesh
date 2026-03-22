@@ -63,7 +63,8 @@ class _CredentialErrorApp extends StatelessWidget {
                 SizedBox(height: 12),
                 Text(
                   'The app was built without Supabase credentials.\n\n'
-                  'Rebuild using:\nflutter build apk --debug \\\n  --dart-define-from-file=.env.local',
+                  'To run:\n  flutter run --dart-define-from-file=.env.local\n\n'
+                  'To build:\n  flutter build apk --debug \\\n    --dart-define-from-file=.env.local',
                   style: TextStyle(
                     color: Color(0xFFAAAAAA),
                     fontSize: 14,

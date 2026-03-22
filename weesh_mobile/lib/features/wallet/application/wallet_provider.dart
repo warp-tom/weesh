@@ -39,7 +39,9 @@ class WalletAccountNotifier extends AsyncNotifier<WalletAccount?> {
     state = const AsyncLoading();
     final next = await AsyncValue.guard(() async {
       await ref.read(walletRepositoryProvider).topUpWallet(wallet.id, amount, source);
-      ref.invalidate(walletTransactionsProvider);
+      // walletTransactionsProvider already watches this notifier's future,
+      // so it will rebuild automatically when state updates below — no
+      // explicit invalidate needed (and calling it here causes CircularDependencyError).
       return _fetchWallet();
     });
     state = next;
