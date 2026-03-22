@@ -65,7 +65,10 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(permissions, (MethodCall call) async {
       if (call.method == 'checkPermissionStatus') return 1; // granted
-      if (call.method == 'requestPermissions') return {call.arguments: 1};
+      if (call.method == 'requestPermissions') {
+        final permissions = call.arguments as List<Object?>? ?? [];
+        return {for (var p in permissions) p: 1};
+      }
       return null;
     });
   });

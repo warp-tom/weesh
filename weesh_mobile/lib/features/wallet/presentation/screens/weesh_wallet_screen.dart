@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 import 'package:weesh_mobile/features/profile/presentation/screens/profile_screen.dart';
 import 'package:weesh_mobile/features/wallet/application/wallet_provider.dart';
+import 'package:weesh_mobile/features/wallet/domain/models/wallet_transaction.dart';
 import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
 class WeeshWalletScreen extends ConsumerWidget {
@@ -309,7 +310,7 @@ class WeeshWalletScreen extends ConsumerWidget {
                           }
                           return Column(
                             children: transactions.map((tx) {
-                              final isOutflow = tx.type != 'top_up' && tx.type != 'refund';
+                              final isOutflow = tx.type != WalletTransactionType.topUp && tx.type != WalletTransactionType.refund;
                               final prefix = isOutflow ? '-' : '+';
                               return _buildTransactionItem(
                                 context,

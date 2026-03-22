@@ -11,10 +11,10 @@ _$WalletTransactionImpl _$$WalletTransactionImplFromJson(
     _$WalletTransactionImpl(
       id: json['id'] as String,
       walletId: json['wallet_id'] as String,
-      amount: _centavosFromJson(json['amount']),
+      amount: centavosFromJson(json['amount']),
       title: json['title'] as String,
       description: json['description'] as String?,
-      type: json['type'] as String,
+      type: $enumDecode(_$WalletTransactionTypeEnumMap, json['type']),
       createdAt: DateTime.parse(json['created_at'] as String),
     );
 
@@ -26,6 +26,13 @@ Map<String, dynamic> _$$WalletTransactionImplToJson(
       'amount': instance.amount,
       'title': instance.title,
       'description': instance.description,
-      'type': instance.type,
+      'type': _$WalletTransactionTypeEnumMap[instance.type]!,
       'created_at': instance.createdAt.toIso8601String(),
     };
+
+const _$WalletTransactionTypeEnumMap = {
+  WalletTransactionType.topUp: 'top_up',
+  WalletTransactionType.payment: 'payment',
+  WalletTransactionType.transfer: 'transfer',
+  WalletTransactionType.refund: 'refund',
+};

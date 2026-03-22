@@ -43,7 +43,7 @@ class _CashInScreenState extends ConsumerState<CashInScreen> {
 
   Future<void> _onConfirm() async {
     final int phpAmount = int.tryParse(_amount) ?? 0;
-    if (phpAmount <= 0) return;
+    if (phpAmount < 10 || phpAmount > 50000) return;
 
     // Convert PHP → centavos for the Edge Function
     final int centavos = phpAmount * 100;
@@ -87,7 +87,8 @@ class _CashInScreenState extends ConsumerState<CashInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canConfirm = _amount != '0' && !_isLoading;
+    final int currentPhp = int.tryParse(_amount) ?? 0;
+    final bool canConfirm = currentPhp >= 10 && currentPhp <= 50000 && !_isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.background,

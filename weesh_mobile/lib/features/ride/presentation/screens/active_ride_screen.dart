@@ -203,6 +203,16 @@ class ActiveRideScreen extends ConsumerWidget {
     final otp = ride.requestCode.isNotEmpty ? ride.requestCode : '----';
     final fare = ride.fare != null ? '₱${ride.fare!.toStringAsFixed(2)}' : 'Computing...';
 
+    final String statusLabel = () {
+      switch (ride.status) {
+        case WeeshRideStatus.inProgress: return 'IN PROGRESS';
+        case WeeshRideStatus.completed: return 'COMPLETED';
+        case WeeshRideStatus.cancelled: return 'CANCELLED';
+        case WeeshRideStatus.accepted: return 'ACCEPTED';
+        default: return ride.status.name.toUpperCase();
+      }
+    }();
+
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -227,7 +237,7 @@ class ActiveRideScreen extends ConsumerWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(ride.status.name.toUpperCase().replaceAll('_', ' '),
+                child: Text(statusLabel,
                   style: GoogleFonts.plusJakartaSans(
                     color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 11)),
               ),

@@ -27,7 +27,7 @@ mixin _$Activity {
       throw _privateConstructorUsedError; // ride, pabili, parcel, top_up
   String get title =>
       throw _privateConstructorUsedError; // Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get amount => throw _privateConstructorUsedError;
   String get status =>
       throw _privateConstructorUsedError; // Pending, In Transit, Completed, Cancelled
@@ -52,7 +52,7 @@ abstract class $ActivityCopyWith<$Res> {
       @JsonKey(name: 'user_id') String userId,
       String type,
       String title,
-      @JsonKey(fromJson: _centavosFromJson) int amount,
+      @JsonKey(fromJson: centavosFromJson) int amount,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
@@ -130,7 +130,7 @@ abstract class _$$ActivityImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String userId,
       String type,
       String title,
-      @JsonKey(fromJson: _centavosFromJson) int amount,
+      @JsonKey(fromJson: centavosFromJson) int amount,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
@@ -201,7 +201,7 @@ class _$ActivityImpl implements _Activity {
       @JsonKey(name: 'user_id') required this.userId,
       required this.type,
       required this.title,
-      @JsonKey(fromJson: _centavosFromJson) required this.amount,
+      @JsonKey(fromJson: centavosFromJson) required this.amount,
       required this.status,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt});
@@ -221,7 +221,7 @@ class _$ActivityImpl implements _Activity {
   final String title;
 // Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
   @override
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   final int amount;
   @override
   final String status;
@@ -280,7 +280,7 @@ abstract class _Activity implements Activity {
           @JsonKey(name: 'user_id') required final String userId,
           required final String type,
           required final String title,
-          @JsonKey(fromJson: _centavosFromJson) required final int amount,
+          @JsonKey(fromJson: centavosFromJson) required final int amount,
           required final String status,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
@@ -299,7 +299,7 @@ abstract class _Activity implements Activity {
   @override // ride, pabili, parcel, top_up
   String get title;
   @override // Amount stored in centavos (e.g. 14500 = ₱145.00) matching wallet layer.
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get amount;
   @override
   String get status;

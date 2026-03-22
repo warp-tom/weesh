@@ -68,7 +68,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       const Gap(20),
 
                       // Add More Items Button
-                      _buildAddMoreButton(context, ref),
+                      _buildAddMoreButton(context),
                       const Gap(32),
 
                       // Note to Rider
@@ -182,7 +182,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     );
   }
 
-  Widget _buildAddMoreButton(BuildContext context, WidgetRef ref) {
+  Widget _buildAddMoreButton(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () {
         HapticFeedback.lightImpact();
@@ -348,7 +348,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             FilledButton(
               onPressed: () {
                 HapticFeedback.mediumImpact();
-                context.push('/checkout');
+                context.push('/checkout', extra: _noteController.text);
               },
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

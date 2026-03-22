@@ -23,12 +23,11 @@ mixin _$WalletTransaction {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'wallet_id')
   String get walletId => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get amount => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  String get type =>
-      throw _privateConstructorUsedError; // top_up, payment, transfer, refund
+  WalletTransactionType get type => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -47,10 +46,10 @@ abstract class $WalletTransactionCopyWith<$Res> {
   $Res call(
       {String id,
       @JsonKey(name: 'wallet_id') String walletId,
-      @JsonKey(fromJson: _centavosFromJson) int amount,
+      @JsonKey(fromJson: centavosFromJson) int amount,
       String title,
       String? description,
-      String type,
+      WalletTransactionType type,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -99,7 +98,7 @@ class _$WalletTransactionCopyWithImpl<$Res, $Val extends WalletTransaction>
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as String,
+              as WalletTransactionType,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -119,10 +118,10 @@ abstract class _$$WalletTransactionImplCopyWith<$Res>
   $Res call(
       {String id,
       @JsonKey(name: 'wallet_id') String walletId,
-      @JsonKey(fromJson: _centavosFromJson) int amount,
+      @JsonKey(fromJson: centavosFromJson) int amount,
       String title,
       String? description,
-      String type,
+      WalletTransactionType type,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -169,7 +168,7 @@ class __$$WalletTransactionImplCopyWithImpl<$Res>
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as String,
+              as WalletTransactionType,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -184,7 +183,7 @@ class _$WalletTransactionImpl implements _WalletTransaction {
   const _$WalletTransactionImpl(
       {required this.id,
       @JsonKey(name: 'wallet_id') required this.walletId,
-      @JsonKey(fromJson: _centavosFromJson) required this.amount,
+      @JsonKey(fromJson: centavosFromJson) required this.amount,
       required this.title,
       this.description,
       required this.type,
@@ -199,15 +198,14 @@ class _$WalletTransactionImpl implements _WalletTransaction {
   @JsonKey(name: 'wallet_id')
   final String walletId;
   @override
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   final int amount;
   @override
   final String title;
   @override
   final String? description;
   @override
-  final String type;
-// top_up, payment, transfer, refund
+  final WalletTransactionType type;
   @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
@@ -258,10 +256,10 @@ abstract class _WalletTransaction implements WalletTransaction {
   const factory _WalletTransaction(
           {required final String id,
           @JsonKey(name: 'wallet_id') required final String walletId,
-          @JsonKey(fromJson: _centavosFromJson) required final int amount,
+          @JsonKey(fromJson: centavosFromJson) required final int amount,
           required final String title,
           final String? description,
-          required final String type,
+          required final WalletTransactionType type,
           @JsonKey(name: 'created_at') required final DateTime createdAt}) =
       _$WalletTransactionImpl;
 
@@ -274,15 +272,15 @@ abstract class _WalletTransaction implements WalletTransaction {
   @JsonKey(name: 'wallet_id')
   String get walletId;
   @override
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get amount;
   @override
   String get title;
   @override
   String? get description;
   @override
-  String get type;
-  @override // top_up, payment, transfer, refund
+  WalletTransactionType get type;
+  @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override

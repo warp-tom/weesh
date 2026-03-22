@@ -1,21 +1,31 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:weesh_mobile/core/utils/currency_utils.dart';
+
 part 'wallet_transaction.freezed.dart';
 part 'wallet_transaction.g.dart';
 
-/// Safely converts Postgres `numeric` (e.g. "500.00") to centavos [int].
-int _centavosFromJson(dynamic value) =>
-    double.parse(value.toString()).round();
+@JsonEnum()
+enum WalletTransactionType {
+  @JsonValue('top_up')
+  topUp,
+  @JsonValue('payment')
+  payment,
+  @JsonValue('transfer')
+  transfer,
+  @JsonValue('refund')
+  refund,
+}
 
 @freezed
 class WalletTransaction with _$WalletTransaction {
   const factory WalletTransaction({
     required String id,
     @JsonKey(name: 'wallet_id') required String walletId,
-    @JsonKey(fromJson: _centavosFromJson) required int amount,
+    @JsonKey(fromJson: centavosFromJson) required int amount,
     required String title,
     String? description,
-    required String type, // top_up, payment, transfer, refund
+    required WalletTransactionType type,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _WalletTransaction;
 

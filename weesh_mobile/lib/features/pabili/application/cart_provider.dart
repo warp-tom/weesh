@@ -37,6 +37,7 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
   void addItem(CartItem item) {
     final idx = state.indexWhere((existing) => existing.lineItemKey == item.lineItemKey);
     if (idx >= 0) {
+      // Intentional additive behavior: if user adds the same item with qty=3, and 2 exist, new total is 5.
       updateQuantity(item.lineItemKey, item.quantity);
     } else {
       state = [...state, item];
@@ -69,6 +70,5 @@ final cartProvider = StateNotifierProvider<CartNotifier, List<CartItem>>((ref) {
 });
 
 final cartSubtotalProvider = Provider<double>((ref) {
-  final cart = ref.watch(cartProvider);
-  return cart.fold(0, (sum, item) => sum + (item.price * item.quantity));
+  return ref.watch(cartProvider.notifier).subtotal;
 });

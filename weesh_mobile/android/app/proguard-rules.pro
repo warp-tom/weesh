@@ -27,7 +27,6 @@
 -keep interface okhttp3.** { *; }
 
 # ── Kotlin Stdlib ─────────────────────────────────────────────────────────────
--keep class kotlin.** { *; }
 -dontwarn kotlin.**
 
 # ── Gson (MapLibre style parsing) ─────────────────────────────────────────────

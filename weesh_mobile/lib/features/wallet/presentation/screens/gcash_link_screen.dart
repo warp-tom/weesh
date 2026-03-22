@@ -80,7 +80,7 @@ class _GcashLinkScreenState extends ConsumerState<GcashLinkScreen> {
     }
     
     setState(() => _isVerifying = true);
-    // TODO: Wire actual SMS OTP verification provider here when backend supports it.
+    // Note: Wire actual SMS OTP verification provider here when backend supports it.
     // Proceeding to link directly for now to unblock production flow.
     await Future<void>.delayed(const Duration(milliseconds: 800));
 

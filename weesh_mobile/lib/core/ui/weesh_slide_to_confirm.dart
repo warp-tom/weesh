@@ -115,12 +115,12 @@ class _WeeshSlideToConfirmState extends State<WeeshSlideToConfirm> with SingleTi
                       color: widget.sliderColor,
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child: _isLoading 
-                        ? const Center(
+                      child: _isLoading 
+                        ? Center(
                             child: SizedBox(
                               height: 24, 
                               width: 24, 
-                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)
+                              child: CircularProgressIndicator(strokeWidth: 2, color: widget.backgroundColor)
                             )
                           )
                         : Icon(

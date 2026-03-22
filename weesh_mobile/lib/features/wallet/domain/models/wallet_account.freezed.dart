@@ -23,7 +23,7 @@ mixin _$WalletAccount {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get balance => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -41,7 +41,7 @@ abstract class $WalletAccountCopyWith<$Res> {
   $Res call(
       {String id,
       @JsonKey(name: 'user_id') String userId,
-      @JsonKey(fromJson: _centavosFromJson) int balance});
+      @JsonKey(fromJson: centavosFromJson) int balance});
 }
 
 /// @nodoc
@@ -89,7 +89,7 @@ abstract class _$$WalletAccountImplCopyWith<$Res>
   $Res call(
       {String id,
       @JsonKey(name: 'user_id') String userId,
-      @JsonKey(fromJson: _centavosFromJson) int balance});
+      @JsonKey(fromJson: centavosFromJson) int balance});
 }
 
 /// @nodoc
@@ -130,7 +130,7 @@ class _$WalletAccountImpl implements _WalletAccount {
   const _$WalletAccountImpl(
       {required this.id,
       @JsonKey(name: 'user_id') required this.userId,
-      @JsonKey(fromJson: _centavosFromJson) this.balance = 0});
+      @JsonKey(fromJson: centavosFromJson) this.balance = 0});
 
   factory _$WalletAccountImpl.fromJson(Map<String, dynamic> json) =>
       _$$WalletAccountImplFromJson(json);
@@ -141,7 +141,7 @@ class _$WalletAccountImpl implements _WalletAccount {
   @JsonKey(name: 'user_id')
   final String userId;
   @override
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   final int balance;
 
   @override
@@ -181,7 +181,7 @@ abstract class _WalletAccount implements WalletAccount {
   const factory _WalletAccount(
           {required final String id,
           @JsonKey(name: 'user_id') required final String userId,
-          @JsonKey(fromJson: _centavosFromJson) final int balance}) =
+          @JsonKey(fromJson: centavosFromJson) final int balance}) =
       _$WalletAccountImpl;
 
   factory _WalletAccount.fromJson(Map<String, dynamic> json) =
@@ -193,7 +193,7 @@ abstract class _WalletAccount implements WalletAccount {
   @JsonKey(name: 'user_id')
   String get userId;
   @override
-  @JsonKey(fromJson: _centavosFromJson)
+  @JsonKey(fromJson: centavosFromJson)
   int get balance;
   @override
   @JsonKey(ignore: true)
