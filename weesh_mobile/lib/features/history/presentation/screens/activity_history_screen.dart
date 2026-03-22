@@ -5,63 +5,18 @@ import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_card.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:gap/gap.dart';
-
-// Mock data provider following Riverpod architecture rules
-final activeActivitiesProvider =
-    Provider<List<Map<String, dynamic>>>((ref) => [
-          {
-            'title': 'Parcel to Makati',
-            'date': 'Today, 1:45 PM',
-            'amount': '₱120.00',
-            'status': 'In Transit',
-            'icon': Iconsax.box,
-            'color': AppColors.primary,
-          },
-          {
-            'title': 'Pabili at Palengke',
-            'date': 'Today, 2:30 PM',
-            'amount': '₱350.00',
-            'status': 'Pending',
-            'icon': Iconsax.shopping_cart,
-            'color': AppColors.secondary,
-          },
-        ]);
-
-final pastActivitiesProvider =
-    Provider<List<Map<String, dynamic>>>((ref) => [
-          {
-            'title': 'Ride to SM City',
-            'date': 'Yesterday, 10:30 AM',
-            'amount': '₱75.00',
-            'status': 'Completed',
-            'icon': Iconsax.car,
-            'color': AppColors.primary,
-          },
-          {
-            'title': 'Tricycle to Palengke',
-            'date': '12 Oct, 8:15 AM',
-            'amount': '₱50.00',
-            'status': 'Completed',
-            'icon': Icons.motorcycle,
-            'color': AppColors.primary,
-          },
-          {
-            'title': 'Ride to Plaza',
-            'date': '10 Oct, 4:00 PM',
-            'amount': '₱60.00',
-            'status': 'Cancelled',
-            'icon': Iconsax.car,
-            'color': AppColors.error,
-          },
-        ]);
+import 'package:weesh_mobile/core/widgets/error_state_widget.dart';
+import 'package:weesh_mobile/features/history/application/history_provider.dart';
+import 'package:weesh_mobile/features/history/domain/models/activity.dart';
+import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
 class ActivityHistoryScreen extends ConsumerWidget {
   const ActivityHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeItems = ref.watch(activeActivitiesProvider);
-    final pastItems = ref.watch(pastActivitiesProvider);
+    final activeItemsState = ref.watch(activeActivitiesProvider);
+    final pastItemsState = ref.watch(pastActivitiesProvider);
 
     return DefaultTabController(
       length: 2,
@@ -94,48 +49,112 @@ class ActivityHistoryScreen extends ConsumerWidget {
         ),
         body: TabBarView(
           children: [
-            _buildList(context, activeItems),
-            _buildList(context, pastItems),
+            _buildList(context, ref, activeItemsState, isActive: true),
+            _buildList(context, ref, pastItemsState, isActive: false),
           ],
         ),
+
       ),
     );
   }
 
-  Widget _buildList(BuildContext context, List<Map<String, dynamic>> items) {
-    if (items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Iconsax.activity, size: 48, color: AppColors.warmGrey),
-            const Gap(12),
-            Text(
-              'No activities yet',
-              style: GoogleFonts.inter(
-                color: AppColors.textLight,
-                fontSize: 16,
-              ),
+  Widget _buildList(BuildContext context, WidgetRef ref, AsyncValue<List<Activity>> state, {required bool isActive}) {
+    return state.when(
+      loading: () => ListView.separated(
+        padding: const EdgeInsets.all(AppPadding.section),
+        itemCount: 4,
+        separatorBuilder: (_, __) => const Gap(12),
+        itemBuilder: (_, __) => WeeshSkeleton.card(),
+      ),
+      error: (err, stack) => ErrorStateWidget(
+        message: 'We couldn\'t load your activities. $err',
+        onRetry: () => ref.refresh(isActive ? activeActivitiesProvider : pastActivitiesProvider),
+      ),
+      data: (items) {
+        if (items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/illustrations/ride_finding.png',
+                  width: 160,
+                  height: 160,
+                ),
+                const Gap(16),
+                Text(
+                  isActive ? 'No active orders yet' : 'No past activities',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.deepCharcoal,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Gap(6),
+                Text(
+                  isActive
+                      ? 'Start a ride, Pabili, or send a parcel!'
+                      : 'Your completed trips will appear here.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.textLight,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
+          );
+        }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(AppPadding.section),
-      itemCount: items.length,
-      separatorBuilder: (context, index) => const Gap(12),
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return _buildHistoryCard(
-          context,
-          title: item['title'] as String,
-          date: item['date'] as String,
-          amount: item['amount'] as String,
-          status: item['status'] as String,
-          icon: item['icon'] as IconData,
-          iconColor: item['color'] as Color,
+        return ListView.separated(
+          padding: const EdgeInsets.all(AppPadding.section),
+          itemCount: items.length,
+          separatorBuilder: (context, index) => const Gap(12),
+          itemBuilder: (context, index) {
+            final item = items[index];
+
+            IconData icon;
+            Color iconColor;
+
+            switch (item.type.toLowerCase()) {
+              case 'ride':
+                icon = Iconsax.car;
+                iconColor = AppColors.primary;
+                break;
+              case 'pabili':
+                icon = Iconsax.shopping_cart;
+                iconColor = AppColors.secondary;
+                break;
+              case 'parcel':
+                icon = Iconsax.box;
+                iconColor = AppColors.primary;
+                break;
+              case 'top_up':
+                icon = Iconsax.wallet_add;
+                iconColor = const Color(0xFF007DFE);
+                break;
+              default:
+                icon = Iconsax.receipt_2;
+                iconColor = AppColors.warmGrey;
+            }
+
+            // Adjust colors based on status
+            if (item.status.toLowerCase() == 'cancelled') {
+              iconColor = AppColors.error;
+            }
+
+            final dateStr = '${item.createdAt.month}/${item.createdAt.day}/${item.createdAt.year}';
+            final amountPrefix = (item.type == 'top_up') ? '+' : '';
+
+            return _buildHistoryCard(
+              context,
+              title: item.title,
+              date: dateStr,
+              amount: '$amountPrefix₱${item.amount.toStringAsFixed(2)}',
+              status: item.status,
+              icon: icon,
+              iconColor: iconColor,
+            );
+          },
         );
       },
     );
@@ -151,8 +170,8 @@ class ActivityHistoryScreen extends ConsumerWidget {
     required Color iconColor,
   }) {
     final bool isCancelled = status.toLowerCase() == 'cancelled';
-    final bool isPending =
-        status.toLowerCase() == 'pending' || status.toLowerCase() == 'in transit';
+    final bool isCompleted = status.toLowerCase() == 'completed';
+    final bool isPending = status.toLowerCase() == 'pending' || status.toLowerCase() == 'in transit';
 
     Color statusColor;
     if (isCancelled) {
@@ -166,6 +185,7 @@ class ActivityHistoryScreen extends ConsumerWidget {
     return WeeshCard(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,87 +199,99 @@ class ActivityHistoryScreen extends ConsumerWidget {
                 ),
                 child: Icon(icon, color: iconColor),
               ),
-              const Gap(16),
+              const Gap(14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.bold,
                         fontSize: 15,
                         color: AppColors.deepCharcoal,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const Gap(4),
                     Text(
                       date,
-                      style: GoogleFonts.inter(
-                        color: AppColors.textLight,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.warmGrey,
                         fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    amount,
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.deepCharcoal,
-                    ),
-                  ),
-                  const Gap(8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      status,
-                      style: GoogleFonts.inter(
-                        color: statusColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                amount,
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: AppColors.deepCharcoal,
+                ),
               ),
             ],
           ),
-          if (status.toLowerCase() == 'completed') ...[
-            const Gap(16),
-            const Divider(height: 1, color: AppColors.cardBorder),
-            const Gap(12),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: Text(
-                  'Book Again',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.bold,
-                  ),
+          const Gap(16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.cardBorder),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const Gap(6),
+                    Text(
+                      status.toUpperCase(),
+                      style: GoogleFonts.plusJakartaSans(
+                        color: statusColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              if (isCompleted)
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.refresh_rounded, size: 16),
+                  label: Text(
+                    'Rebook',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    side: const BorderSide(color: AppColors.neutral200),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );

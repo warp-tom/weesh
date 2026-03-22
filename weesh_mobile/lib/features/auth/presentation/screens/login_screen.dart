@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
 import 'package:weesh_mobile/features/auth/application/auth_controller.dart';
@@ -37,28 +38,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Illustration placeholder
-              Container(
-                height: 200,
-                width: double.infinity,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral100,
-                  borderRadius: AppRadius.cardRadius,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.phonelink_ring, size: 64, color: AppColors.primary),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Ready to Roll?',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary),
-                    ),
-                  ],
+              // Lottie animation for phone authentication
+              SizedBox(
+                height: 220,
+                child: Lottie.asset(
+                  'assets/lottie/login.json',
+                  fit: BoxFit.contain,
+                  repeat: true,
                 ),
               ),
               const SizedBox(height: AppPadding.section),
+              Text(
+                'Enter your mobile number to get started',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textLight,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
@@ -79,12 +76,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: authState.isLoading
                       ? null
                       : () async {
-                          final phone = '+63${_phoneController.text.trim()}';
+                          final phone =
+                              '+63${_phoneController.text.trim()}';
                           if (phone.length < 13) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text(
-                                      'Please enter a valid mobile number')),
+                                content:
+                                    Text('Please enter a valid mobile number'),
+                              ),
                             );
                             return;
                           }

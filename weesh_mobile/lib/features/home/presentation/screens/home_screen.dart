@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -103,7 +104,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                     // Mock Live Activity Pill
                     GestureDetector(
-                      onTap: () => context.push('/driver_en_route'),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        context.push('/driver_en_route');
+                      },
                       child: _buildLiveActivityPill()
                           .animate()
                           .fadeIn(duration: AppDurations.normal)
@@ -431,7 +435,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }) {
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -479,7 +486,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildUniversalSearch(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/location_search'),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        context.push('/location_search');
+      },
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),

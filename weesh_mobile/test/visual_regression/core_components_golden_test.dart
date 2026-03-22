@@ -4,9 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
 import 'package:weesh_mobile/core/ui/weesh_card.dart';
 
+import 'dart:io';
+
+class _FakeHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
 void main() {
   setUpAll(() {
-    GoogleFonts.config.allowRuntimeFetching = false;
+    GoogleFonts.config.allowRuntimeFetching = true;
+    HttpOverrides.global = _FakeHttpOverrides();
   });
 
   testWidgets('WeeshCard and WeeshAppBar match golden snapshot', (tester) async {
@@ -31,5 +42,8 @@ void main() {
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/weesh_core_components.png'),
     );
+
+    // Clear pending timers from flutter_animate elements inside WeeshCard
+    await tester.pump(const Duration(seconds: 1));
   });
 }

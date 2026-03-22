@@ -40,6 +40,8 @@ import 'package:weesh_mobile/features/chat/presentation/screens/chat_interface_s
 import 'package:weesh_mobile/features/settings/presentation/screens/emergency_contacts_screen.dart';
 import 'package:weesh_mobile/features/social/presentation/screens/invite_friends_screen.dart';
 import 'package:weesh_mobile/features/settings/presentation/screens/profile_settings_screen.dart';
+import 'package:weesh_mobile/features/wallet/presentation/screens/gcash_link_screen.dart';
+import 'package:weesh_mobile/features/profile/presentation/screens/profile_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorHomeKey =
@@ -246,6 +248,10 @@ final goRouter = GoRouter(
       path: '/profile_setup',
       builder: (context, state) => const ProfileSetupScreen(),
     ),
+    GoRoute(
+      path: '/gcash_link',
+      builder: (context, state) => const GcashLinkScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainShell(navigationShell: navigationShell);
@@ -283,7 +289,7 @@ final goRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const ProfileSettingsScreen(),
+              builder: (context, state) => const ProfileScreen(),
             ),
           ],
         ),
