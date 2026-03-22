@@ -52,18 +52,16 @@ class SupabaseWalletRepository implements WalletRepository {
   @override
   Future<void> topUpWallet(String walletId, int amount, String source) async {
     try {
-      // Call the secure Edge Function instead of direct DB writes
-      // The EF handles atomic balance update + transaction record atomically
-      final response = await _client.functions.invoke(
-        'wallet-topup',
-        body: {'amount': amount, 'source': source},
-      );
-
-      if (response.status != 200) {
-        final body = response.data as Map<String, dynamic>?;
-        final errorMsg = body?['error'] as String? ?? 'Top-up failed';
-        throw Exception(errorMsg);
-      }
+      // Call the atomic Postgres RPC instead of an Edge Function.
+      // wallet_top_up() inserts the transaction record AND updates balance
+      // in a single DB transaction, running under the user's session JWT via RLS.
+      await _client.rpc('wallet_top_up', params: {
+        'p_wallet_id': walletId,
+        'p_amount': amount,
+        'p_source': source,
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to top up wallet: ${e.message}');
     } catch (e) {
       throw Exception('Failed to top up wallet: $e');
     }
