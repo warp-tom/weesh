@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gap/gap.dart';
+import 'package:lottie/lottie.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
 import 'package:weesh_mobile/features/auth/application/auth_controller.dart';
@@ -24,45 +26,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    // When the soft keyboard is open, viewInsets.bottom > 0.
+    // We use this to collapse the Lottie animation and free up space.
+    final bool keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      // resizeToAvoidBottomInset: true (Flutter default) shrinks the body
+      // when the keyboard appears. SingleChildScrollView handles the rest.
+      resizeToAvoidBottomInset: true,
       appBar: const WeeshAppBar(
         backgroundColor: AppColors.background,
         title: 'Login',
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // reverse: true anchors content at the bottom of the scroll view,
+          // so the Continue button rises naturally above the keyboard.
+          reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Illustration placeholder
-              Container(
-                height: 200,
-                width: double.infinity,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral100,
-                  borderRadius: AppRadius.cardRadius,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.phonelink_ring, size: 64, color: AppColors.primary),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Ready to Roll?',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary),
-                    ),
-                  ],
-                ),
+              // Lottie animates out when keyboard is open to save space.
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: keyboardOpen ? 0 : 200,
+                child: keyboardOpen
+                    ? const SizedBox.shrink()
+                    : Lottie.asset(
+                        'assets/lottie/login.json',
+                        fit: BoxFit.contain,
+                        repeat: true,
+                      ),
               ),
-              const SizedBox(height: AppPadding.section),
+              const Gap(AppPadding.section),
+              Text(
+                'Enter your mobile number to get started',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textLight,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(20),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 style: Theme.of(context).textTheme.bodyLarge,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   labelText: 'Mobile Number',
                   prefixText: '+63 ',
@@ -72,19 +83,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              const Spacer(),
+              // Fixed gap replaces Spacer — never causes overflow when keyboard opens.
+              const Gap(32),
               Padding(
                 padding: const EdgeInsets.only(bottom: AppPadding.horizontal),
                 child: FilledButton(
                   onPressed: authState.isLoading
                       ? null
                       : () async {
-                          final phone = '+63${_phoneController.text.trim()}';
+                          final phone =
+                              '+63${_phoneController.text.trim()}';
                           if (phone.length < 13) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text(
-                                      'Please enter a valid mobile number')),
+                                content:
+                                    Text('Please enter a valid mobile number'),
+                              ),
                             );
                             return;
                           }

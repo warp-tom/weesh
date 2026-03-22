@@ -71,7 +71,9 @@ class _PaymentSelectorSheetState extends State<PaymentSelectorSheet> {
                       children: [
                         Checkbox(
                           value: _needsChange,
-                          activeColor: AppColors.primary,
+                          fillColor: WidgetStateProperty.resolveWith(
+                            (states) => states.contains(WidgetState.selected) ? AppColors.primary : null,
+                          ),
                           onChanged: (val) => setState(() => _needsChange = val ?? false),
                         ),
                         const Text('I need change for:', style: TextStyle(fontWeight: FontWeight.bold)),

@@ -1,41 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
+import 'package:weesh_mobile/features/wallet/application/wallet_provider.dart';
 
-class CashInScreen extends StatefulWidget {
+/// GCash Cash-In screen.
+/// Bug 3 fix: Now actually calls [walletAccountNotifierProvider.topUp] on confirm.
+class CashInScreen extends ConsumerStatefulWidget {
   const CashInScreen({super.key});
 
   @override
-  State<CashInScreen> createState() => _CashInScreenState();
+  ConsumerState<CashInScreen> createState() => _CashInScreenState();
 }
 
-class _CashInScreenState extends State<CashInScreen> {
-  String _amount = "0";
+class _CashInScreenState extends ConsumerState<CashInScreen> {
+  String _amount = '0';
+  bool _isLoading = false;
 
   void _onKeypadTap(String value) {
+    if (_isLoading) return;
     setState(() {
       if (value == 'C') {
-        _amount = "0";
+        _amount = '0';
       } else if (value == '<') {
         if (_amount.length > 1) {
           _amount = _amount.substring(0, _amount.length - 1);
         } else {
-          _amount = "0";
+          _amount = '0';
         }
       } else {
-        if (_amount == "0") {
+        if (_amount == '0') {
           _amount = value;
         } else if (_amount.length < 5) {
-           _amount += value;
+          _amount += value;
         }
       }
     });
   }
 
+  Future<void> _onConfirm() async {
+    final int phpAmount = int.tryParse(_amount) ?? 0;
+    if (phpAmount < 10 || phpAmount > 50000) return;
+
+    // Convert PHP → centavos for the Edge Function
+    final int centavos = phpAmount * 100;
+
+    setState(() => _isLoading = true);
+    try {
+      await ref
+          .read(walletAccountNotifierProvider.notifier)
+          .topUp(centavos, 'GCash');
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '₱$phpAmount successfully added to your wallet! 🎉',
+            style: GoogleFonts.plusJakartaSans(color: Colors.white),
+          ),
+          backgroundColor: AppColors.primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white),
+          ),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int currentPhp = int.tryParse(_amount) ?? 0;
+    final bool canConfirm = currentPhp >= 10 && currentPhp <= 50000 && !_isLoading;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const WeeshAppBar(
@@ -49,20 +103,32 @@ class _CashInScreenState extends State<CashInScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Enter Amount', style: TextStyle(color: AppColors.warmGrey)),
+                  Text(
+                    'Enter Amount',
+                    style: GoogleFonts.plusJakartaSans(color: AppColors.warmGrey),
+                  ),
                   const Gap(8),
                   Text(
                     '₱ $_amount.00',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const Gap(4),
+                  Text(
+                    'Min ₱10 · Max ₱50,000',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      color: AppColors.warmGrey,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          
+
           // Custom Number Pad
           Container(
             padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 48),
@@ -91,13 +157,30 @@ class _CashInScreenState extends State<CashInScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _amount == "0" ? null : () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cash In Success!')),
-                      );
-                      context.pop();
-                    },
-                    child: const Text('Confirm Cash In'),
+                    onPressed: canConfirm ? _onConfirm : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Text(
+                            'Confirm Cash In',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -126,7 +209,9 @@ class _CashInScreenState extends State<CashInScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: key == 'C' || key == '<' ? AppColors.warmGrey : AppColors.textBody,
+                  color: key == 'C' || key == '<'
+                      ? AppColors.warmGrey
+                      : AppColors.textBody,
                 ),
               ),
             ),

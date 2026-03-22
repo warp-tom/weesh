@@ -22,12 +22,16 @@ class MainShell extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.secondary,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        selectedIndex: navigationShell.currentIndex,
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.cardBorder, width: 1.0)),
+        ),
+        child: NavigationBar(
+          backgroundColor: AppColors.surface,
+          indicatorColor: AppColors.primary.withValues(alpha: 0.1),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _onTap,
         destinations: const [
           NavigationDestination(
@@ -51,7 +55,8 @@ class MainShell extends StatelessWidget {
             label: 'Profile',
           ),
         ],
-      ),
-    );
+        ), // close NavigationBar
+      ), // close Container
+    ); // close Scaffold
   }
 }

@@ -26,11 +26,29 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Multidex: splits the DEX so ART verifies class pools on background
+        // threads instead of blocking the main thread during app startup.
+        multiDexEnabled = true
     }
 
     buildTypes {
+        debug {
+            // Do NOT enable R8 minification in debug — full-program analysis
+            // crashes the Gradle JVM daemon with OOM on large dependency stacks
+            // (MapLibre + OkHttp + Kotlin stdlib).
+            // multiDexEnabled above already splits the DEX so ART pre-verifies
+            // pools on background threads instead of blocking the main thread.
+            isMinifyEnabled = false
+        }
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            // TODO: Replace with proper release keystore before production deployment
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
@@ -41,4 +59,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("androidx.multidex:multidex:2.0.1")
 }

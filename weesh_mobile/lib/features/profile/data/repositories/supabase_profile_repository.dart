@@ -16,6 +16,22 @@ class SupabaseProfileRepository implements ProfileRepository {
   final SupabaseClient _supabase;
 
   @override
+  Future<Map<String, dynamic>?> getProfile(String userId) async {
+    try {
+      final response = await _supabase
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+      return response;
+    } on PostgrestException catch (e) {
+      throw Exception('Database error: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to get profile: $e');
+    }
+  }
+
+  @override
   Future<void> upsertProfile({
     required String userId,
     required String phone,
@@ -71,6 +87,28 @@ class SupabaseProfileRepository implements ProfileRepository {
       throw Exception('Storage error: ${e.message}');
     } catch (e) {
       throw Exception('Failed to upload avatar: $e');
+    }
+  }
+
+  @override
+  Future<void> linkGcash({
+    required String userId,
+    required String gcashNumber,
+  }) async {
+    try {
+      final now = DateTime.now().toUtc().toIso8601String();
+      final result = await _supabase.from('users').update({
+        'gcash_number': gcashNumber,
+        'gcash_linked_at': now,
+        'updated_at': now,
+      }).eq('id', userId).select();
+      if ((result as List).isEmpty) {
+        throw Exception('User not found: GCash link did not occur.');
+      }
+    } on PostgrestException catch (e) {
+      throw Exception('Database error: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to link GCash: $e');
     }
   }
 }

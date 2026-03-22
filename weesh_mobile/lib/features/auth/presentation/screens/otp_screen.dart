@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gap/gap.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:weesh_mobile/core/ui/weesh_app_bar.dart';
@@ -18,11 +19,11 @@ class OtpScreen extends ConsumerStatefulWidget {
 }
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
-  final TextEditingController _otpController = TextEditingController(text: '1234');
+  final TextEditingController _otpController = TextEditingController();
 
   @override
   void dispose() {
-    // pin_code_fields automatically disposes the controller when unmounted
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -32,73 +33,97 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: true,
       appBar: const WeeshAppBar(
         backgroundColor: AppColors.background,
         title: 'Verification',
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // reverse: true keeps the Verify button anchored at the bottom,
+          // rising above the keyboard naturally when it opens.
+          reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppPadding.section),
+              const Gap(AppPadding.section),
               Text(
-                'Enter the 6-digit code sent to ${widget.phone}',
+                'Enter the 6-digit code sent to\n${widget.phone}',
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
-              PinCodeTextField(
-                appContext: context,
-                length: 6,
-                controller: _otpController,
-                keyboardType: TextInputType.number,
-                pinTheme: PinTheme(
-                  shape: PinCodeFieldShape.box,
-                  borderRadius: AppRadius.inputRadius,
-                  fieldHeight: 60,
-                  fieldWidth: 60,
-                  activeFillColor: AppColors.surface,
-                  inactiveFillColor: AppColors.surface,
-                  selectedFillColor: AppColors.surface,
-                  activeColor: AppColors.primary,
-                  inactiveColor: AppColors.neutral200,
-                  selectedColor: AppColors.primary,
-                ),
-                enableActiveFill: true,
-                onChanged: (value) {},
+              const Gap(32),
+              // LayoutBuilder ensures pin boxes never overflow the available width
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  const int pinLength = 6;
+                  const double totalSpacing = 8.0 * (pinLength - 1);
+                  final double fieldWidth =
+                      (constraints.maxWidth - totalSpacing) / pinLength;
+
+                  return PinCodeTextField(
+                    appContext: context,
+                    length: pinLength,
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.fade,
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.box,
+                      borderRadius: AppRadius.inputRadius,
+                      fieldHeight: 56,
+                      fieldWidth: fieldWidth,
+                      activeFillColor: AppColors.surface,
+                      inactiveFillColor: AppColors.surface,
+                      selectedFillColor: AppColors.surface,
+                      activeColor: AppColors.primary,
+                      inactiveColor: AppColors.neutral200,
+                      selectedColor: AppColors.primary,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.deepCharcoal,
+                    ),
+                    enableActiveFill: true,
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  );
+                },
               ),
-              const SizedBox(height: 16),
+              const Gap(16),
               Center(
                 child: TextButton(
                   onPressed: authState.isLoading
                       ? null
                       : () async {
                           final messenger = ScaffoldMessenger.of(context);
-                              try {
-                                await ref
-                                    .read(authControllerProvider.notifier)
-                                    .signInWithPhone(widget.phone);
-                                if (!context.mounted) return;
-                                messenger.showSnackBar(
-                                  const SnackBar(content: Text('Code resent!')),
-                                );
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                messenger.showSnackBar(
-                                  SnackBar(content: Text(e.toString())),
-                                );
-                              }
-                            },
+                          try {
+                            await ref
+                                .read(authControllerProvider.notifier)
+                                .signInWithPhone(widget.phone);
+                            if (!context.mounted) return;
+                            messenger.showSnackBar(
+                              const SnackBar(content: Text('Code resent!')),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        },
                   child: const Text('Resend Code'),
                 ),
               ),
-              const Spacer(),
+              // Fixed gap instead of Spacer — never causes overflow when keyboard opens.
+              const Gap(32),
               Padding(
                 padding: const EdgeInsets.only(bottom: AppPadding.horizontal),
                 child: FilledButton(
-                  onPressed: authState.isLoading || _otpController.text.length < 6
+                  onPressed: authState.isLoading ||
+                          _otpController.text.length < 6
                       ? null
                       : () async {
                           FocusScope.of(context).unfocus();

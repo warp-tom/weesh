@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,59 +10,71 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
+
+    // Hold splash for 3 seconds then navigate; GoRouter redirect handles auth
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        // GoRouter redirect will catch this and send to /welcome or /home based on auth
         context.go('/welcome');
       }
     });
   }
 
   @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Placeholder for logo
-            Container(
-              width: 120,
-              height: 120,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.electric_rickshaw,
-                  size: 60,
-                  color: AppColors.surface,
+      body: FadeTransition(
+        opacity: _fadeController,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Lottie splash animation
+              SizedBox(
+                width: 240,
+                height: 240,
+                child: Lottie.asset(
+                  'assets/lottie/splash.json',
+                  fit: BoxFit.contain,
+                  repeat: true,
                 ),
               ),
-            ),
-            const Gap(16),
-            Text(
-              'Your Wish, Our Wheels',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.primary,
-                  ),
-            ),
-          ],
-        )
-            .animate()
-            .fadeIn(duration: 1200.ms, curve: Curves.easeOutCubic)
-            .scale(
-              begin: const Offset(0.8, 0.8),
-              end: const Offset(1.0, 1.0),
-              duration: 1200.ms,
-              curve: Curves.easeOutCubic,
-            ),
+              const SizedBox(height: 24),
+              Text(
+                'Weesh',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your Wish, Our Wheels',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textLight,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

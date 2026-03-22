@@ -22,7 +22,6 @@ class _FakeHttpOverrides extends HttpOverrides {
   }
 }
 
-
 class MockRideSync extends Mock implements RideSyncService {}
 class MockParcelSync extends Mock implements ParcelSyncService {}
 class MockGrocerySync extends Mock implements GrocerySyncService {}
@@ -32,11 +31,20 @@ void main() {
   setUpAll(() async {
     GoogleFonts.config.allowRuntimeFetching = false;
     HttpOverrides.global = _FakeHttpOverrides();
-    
-    // Completely mock the platform views channel to bypass Mapbox rendering crashes
-    const MethodChannel channel = MethodChannel('flutter/platform_views');
+
+    // Mock Mapbox platform views channel
+    const MethodChannel platformViews = MethodChannel('flutter/platform_views');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        .setMockMethodCallHandler(platformViews, (_) async => null);
+
+    // Mock permission_handler channel so _checkLocationPermission doesn't crash
+    const MethodChannel permissions =
+        MethodChannel('flutter.baseflow.com/permissions/methods');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(permissions, (MethodCall call) async {
+      // Return 'granted' (value 1) for any permission status check
+      if (call.method == 'checkPermissionStatus') return 1;
+      if (call.method == 'requestPermissions') return {call.arguments: 1};
       return null;
     });
   });
@@ -75,7 +83,8 @@ void main() {
     // 3. Assertions
     // "Guest User" is returned from our Fake auth controller
     expect(find.text('Guest'), findsOneWidget);
-    expect(find.text('Where to?'), findsOneWidget);
+    // Search bar text matches current home_screen.dart copy
+    expect(find.text('Where to or What to buy?'), findsOneWidget);
     
     // Check main service cards
     expect(find.text('Ride'), findsOneWidget);

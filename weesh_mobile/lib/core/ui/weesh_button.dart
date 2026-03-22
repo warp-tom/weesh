@@ -67,7 +67,7 @@ class _WeeshButtonState extends State<WeeshButton> {
           color: _backgroundColor,
           borderRadius: AppRadius.buttonRadius,
           border: widget._variant == _ButtonVariant.ghost
-              ? Border.all(color: AppColors.terracotta, width: 1.5)
+              ? Border.all(color: AppColors.primary, width: 1.5)
               : null,
         ),
         child: widget.isLoading
@@ -78,7 +78,7 @@ class _WeeshButtonState extends State<WeeshButton> {
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: widget._variant == _ButtonVariant.ghost
-                        ? AppColors.terracotta
+                        ? AppColors.primary
                         : Colors.white,
                   ),
                 ),
@@ -92,10 +92,11 @@ class _WeeshButtonState extends State<WeeshButton> {
                   ],
                   Text(
                     widget.label,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: _foregroundColor,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
@@ -105,13 +106,13 @@ class _WeeshButtonState extends State<WeeshButton> {
   }
 
   Color get _backgroundColor => switch (widget._variant) {
-        _ButtonVariant.filled || _ButtonVariant.withIcon => AppColors.terracotta,
+        _ButtonVariant.filled || _ButtonVariant.withIcon => AppColors.primary,
         _ButtonVariant.ghost => Colors.transparent,
       };
 
   Color get _foregroundColor => switch (widget._variant) {
         _ButtonVariant.filled || _ButtonVariant.withIcon => Colors.white,
-        _ButtonVariant.ghost => AppColors.terracotta,
+        _ButtonVariant.ghost => AppColors.primary,
       };
 }
 

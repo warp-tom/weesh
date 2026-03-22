@@ -1,190 +1,521 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:weesh_mobile/core/theme/constants.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
+import 'package:weesh_mobile/features/profile/presentation/screens/profile_screen.dart';
+import 'package:weesh_mobile/features/wallet/application/wallet_provider.dart';
+import 'package:weesh_mobile/features/wallet/domain/models/wallet_transaction.dart';
+import 'package:weesh_mobile/core/ui/weesh_skeleton.dart';
 
-final mockBalanceProvider = StateProvider<double>((ref) => 1250.00);
-
-class WeeshWalletScreen extends ConsumerWidget {
+class WeeshWalletScreen extends ConsumerStatefulWidget {
   const WeeshWalletScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final balance = ref.watch(mockBalanceProvider);
+  ConsumerState<WeeshWalletScreen> createState() => _WeeshWalletScreenState();
+}
+
+class _WeeshWalletScreenState extends ConsumerState<WeeshWalletScreen> {
+  bool _balanceHidden = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isGcashLinked = ref.watch(userProfileProvider).value?['gcash_number'] != null;
+
+    // Bug 6: Show SnackBar when top-up (or wallet load) fails
+    ref.listen<AsyncValue<dynamic>>(walletAccountNotifierProvider, (_, next) {
+      next.whenOrNull(
+        error: (err, _) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                err.toString().replaceFirst('Exception: ', ''),
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      );
+    });
+
+    final walletState = ref.watch(walletAccountNotifierProvider);
+    final transactionsState = ref.watch(walletTransactionsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      // ignore: weesh_no_generic_appbar
-      appBar: AppBar(
-        title: Text(
-          'Wallet',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: AppColors.deepCharcoal,
-          ),
-        ),
-        automaticallyImplyLeading: false,
+      body: walletState.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        error: (err, stack) => Center(child: Text('Error: $err', style: GoogleFonts.inter(color: AppColors.error))),
+        data: (wallet) {
+          final balance = wallet?.balance ?? 0;
+          return CustomScrollView(
+            slivers: [
+              // ─── Gradient Balance Header ───
+              SliverToBoxAdapter(
+                child: _buildBalanceHeader(context, balance),
+              ),
+
+              // ─── Quick Actions ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.section,
+                    vertical: 16,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (kDebugMode)
+                        _buildActionButton(
+                          context,
+                          title: 'Top-Up\n(Mock)',
+                          icon: Iconsax.wallet_add,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            ref.read(walletAccountNotifierProvider.notifier).topUp(10000, 'GCash Mock (Auto)');
+                          },
+                        ),
+                      _buildActionButton(
+                        context,
+                        title: 'Send',
+                        icon: Iconsax.send_2,
+                        onTap: () {},
+                      ),
+                      _buildActionButton(
+                        context,
+                        title: 'WeeshPay',
+                        icon: Iconsax.card,
+                        onTap: () => context.push('/weesh_pay_dashboard'),
+                      ),
+                      _buildActionButton(
+                        context,
+                        title: 'Receive',
+                        icon: Iconsax.empty_wallet_add,
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ─── Payment Methods Section ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.section,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Payment Methods',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.deepCharcoal,
+                        ),
+                      ),
+                      const Gap(12),
+                      _buildPaymentMethodTile(
+                        context,
+                        title: 'GCash',
+                        subtitle: isGcashLinked ? 'GCash linked' : 'Link your GCash account',
+                        color: const Color(0xFF007DFE),
+                        icon: Iconsax.mobile,
+                        isLinked: isGcashLinked,
+                        onTap: () {
+                          if (!isGcashLinked) context.push('/gcash_link');
+                        },
+                      ),
+                      const Gap(8),
+                      _buildPaymentMethodTile(
+                        context,
+                        title: 'Cash',
+                        subtitle: 'Pay with cash on delivery',
+                        color: AppColors.primary,
+                        icon: Iconsax.money,
+                        isLinked: true,
+                        onTap: () {},
+                      ),
+                      const Gap(8),
+                      _buildPaymentMethodTile(
+                        context,
+                        title: 'WeeshPay',
+                        subtitle: '₱${(balance / 100).toStringAsFixed(2)} available',
+                        color: AppColors.secondary,
+                        icon: Iconsax.card,
+                        isLinked: true,
+                        onTap: () => context.push('/weesh_pay_dashboard'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SliverToBoxAdapter(child: Gap(24)),
+
+              // ─── Promo Cards ───
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppPadding.section,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Promos & Vouchers',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.deepCharcoal,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/promo_vouchers'),
+                            child: Text(
+                              'See All',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 140,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.section,
+                        ),
+                        children: [
+                          _buildPromoCard(
+                            context,
+                            id: 'promo_1',
+                            title: '20% Off Rides',
+                            subtitle: 'Valid until Dec 31',
+                            color: AppColors.secondary,
+                            icon: Iconsax.discount_shape,
+                          ),
+                          const Gap(16),
+                          _buildPromoCard(
+                            context,
+                            id: 'promo_2',
+                            title: 'Free Delivery',
+                            subtitle: 'For new users',
+                            color: AppColors.primary,
+                            icon: Iconsax.box,
+                          ),
+                          const Gap(16),
+                          _buildPromoCard(
+                            context,
+                            id: 'promo_3',
+                            title: '₱50 Cashback',
+                            subtitle: 'Min. ₱200 top up',
+                            color: AppColors.gcashBlue,
+                            icon: Iconsax.wallet_add,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SliverToBoxAdapter(child: Gap(24)),
+
+              // ─── Recent Transactions ───
+              SliverToBoxAdapter(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppPadding.section, 24, AppPadding.section, 16,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Recent Transactions',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.deepCharcoal,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                'View All',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      transactionsState.when(
+                        loading: () => ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
+                          itemCount: 3,
+                          separatorBuilder: (_, __) => const Gap(12),
+                          itemBuilder: (_, __) => WeeshSkeleton.listTile(),
+                        ),
+                        error: (err, stack) => Padding(
+                          padding: const EdgeInsets.all(AppPadding.section),
+                          child: Text('Error loading transactions: $err', style: GoogleFonts.inter(color: AppColors.error)),
+                        ),
+                         data: (transactions) {
+                          if (transactions.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 40),
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    'assets/illustrations/wallet_success.png',
+                                    width: 140,
+                                    height: 140,
+                                  ),
+                                  const Gap(16),
+                                  Text('No transactions yet',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: AppColors.deepCharcoal,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    )),
+                                  const Gap(6),
+                                  Text('Top up your wallet to get started.',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: AppColors.textLight,
+                                      fontSize: 13,
+                                    )),
+                                ],
+                              ),
+                            );
+                          }
+                          return Column(
+                            children: transactions.map((tx) {
+                              final isOutflow = tx.type != WalletTransactionType.topUp && tx.type != WalletTransactionType.refund;
+                              final prefix = isOutflow ? '-' : '+';
+                              return _buildTransactionItem(
+                                context,
+                                title: tx.title,
+                                // Bug 2 fix: amount is in centavos (int), divide by 100 for PHP display
+                                amount: '$prefix₱${(tx.amount / 100).toStringAsFixed(2)}',
+                                date: DateFormat('MMM d, yyyy').format(tx.createdAt),
+                                isDeduction: isOutflow,
+                                icon: isOutflow ? Iconsax.shopping_cart : Iconsax.wallet_add,
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                      const Gap(40),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildBalanceHeader(BuildContext context, int balance) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        bottom: 28,
+        left: AppPadding.section,
+        right: AppPadding.section,
+      ),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, Color(0xFF1F352C)],
+        ),
+        borderRadius:
+            BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Balance Card — with animated glow
-          Container(
-            margin: const EdgeInsets.all(AppPadding.section),
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.terracotta,
-                  Color(0xFFB04A3C),
-                ],
-              ),
+          // Title bar
+          Text(
+            'Wallet',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Available Balance',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+          ),
+          const Gap(24),
+          // Balance section
+          Text(
+            'Available Balance',
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white70,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Gap(8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _balanceHidden ? '₱ ••••••' : '₱${(balance / 100).toStringAsFixed(2)}',
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => setState(() => _balanceHidden = !_balanceHidden),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _balanceHidden ? Iconsax.eye_slash : Iconsax.eye,
+                        size: 16,
+                        color: Colors.white70,
+                      ),
+                      const Gap(6),
+                      Text(
+                        _balanceHidden ? 'Show' : 'Hide',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const Gap(8),
-                Text(
-                  '₱${balance.toStringAsFixed(2)}',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Action Buttons
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildActionButton(
-                  context,
-                  title: 'Top Up',
-                  icon: Iconsax.wallet_add,
-                  onTap: () => context.push('/cash_in'),
-                ),
-                _buildActionButton(
-                  context,
-                  title: 'Send',
-                  icon: Iconsax.send_2,
-                  onTap: () {},
-                ),
-                _buildActionButton(
-                  context,
-                  title: 'WeeshPay',
-                  icon: Iconsax.card,
-                  onTap: () => context.push('/weesh_pay_dashboard'),
-                ),
-                _buildActionButton(
-                  context,
-                  title: 'Receive',
-                  icon: Iconsax.empty_wallet_add,
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
-
-          const Gap(32),
-
-          // Promo Cards
-          SizedBox(
-            height: 140,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.section),
-              children: [
-                _buildPromoCard(
-                  context,
-                  id: 'promo_1',
-                  title: '20% Off Rides',
-                  subtitle: 'Valid until Dec 31',
-                  color: AppColors.secondary,
-                  icon: Iconsax.discount_shape,
-                ),
-                const Gap(16),
-                _buildPromoCard(
-                  context,
-                  id: 'promo_2',
-                  title: 'Free Delivery',
-                  subtitle: 'For new users',
-                  color: AppColors.primary,
-                  icon: Iconsax.box,
-                ),
-              ],
-            ),
-          ),
-
-          const Gap(32),
-
-          // Recent Transactions
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required Color color,
+    required IconData icon,
+    required bool isLinked,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const Gap(14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        AppPadding.section, 24, AppPadding.section, 16),
-                    child: Text(
-                      'Recent Transactions',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.deepCharcoal,
-                      ),
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.deepCharcoal,
                     ),
                   ),
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppPadding.section),
-                      itemCount: _mockTransactions.length,
-                      separatorBuilder: (_, __) => const Divider(
-                        height: 1,
-                        color: AppColors.cardBorder,
-                      ),
-                      itemBuilder: (context, index) {
-                        final tx = _mockTransactions[index];
-                        return _buildTransactionItem(
-                          context,
-                          title: tx['title'] as String,
-                          date: tx['date'] as String,
-                          amount: tx['amount'] as String,
-                          isDeduction: tx['isDeduction'] as bool,
-                          icon: tx['icon'] as IconData,
-                        );
-                      },
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      color: AppColors.warmGrey,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            if (isLinked)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Active',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: AppColors.warmGrey,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -203,10 +534,12 @@ class WeeshWalletScreen extends ConsumerWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.terracotta.withValues(alpha: 0.1),
+              color: AppColors.surface,
+              border:
+                  Border.all(color: AppColors.cardBorder, width: 1.0),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppColors.terracotta, size: 24),
+            child: Icon(icon, color: AppColors.primary, size: 24),
           ),
           const Gap(8),
           Text(
@@ -230,8 +563,8 @@ class WeeshWalletScreen extends ConsumerWidget {
     required Color color,
     required IconData icon,
   }) {
-    // Determine a darker text color for light backgrounds
-    final textColor = color == AppColors.secondary ? Colors.black87 : Colors.white;
+    final textColor =
+        color == AppColors.secondary ? Colors.black87 : Colors.white;
 
     return GestureDetector(
       onTap: () {
@@ -247,7 +580,7 @@ class WeeshWalletScreen extends ConsumerWidget {
       child: Hero(
         tag: 'promo_$id',
         child: Container(
-          width: 240,
+          width: 220,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: color,
@@ -258,7 +591,8 @@ class WeeshWalletScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: textColor.withValues(alpha: 0.8), size: 32),
+              Icon(icon,
+                  color: textColor.withValues(alpha: 0.8), size: 32),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -299,17 +633,20 @@ class WeeshWalletScreen extends ConsumerWidget {
     required IconData icon,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: AppPadding.section,
+      ),
       child: Row(
         children: [
           Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.heroBanner,
+              color: AppColors.surfaceDim,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.terracotta, size: 20),
+            child: Icon(icon, color: AppColors.deepCharcoal, size: 20),
           ),
           const Gap(14),
           Expanded(
@@ -340,42 +677,12 @@ class WeeshWalletScreen extends ConsumerWidget {
             style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.bold,
               fontSize: 15,
-              color: isDeduction ? AppColors.deepCharcoal : AppColors.primary,
+              color:
+                  isDeduction ? AppColors.deepCharcoal : AppColors.primary,
             ),
           ),
         ],
       ),
     );
   }
-
-  static final List<Map<String, dynamic>> _mockTransactions = [
-    {
-      'title': 'Ride to SM City',
-      'date': 'Today, 2:30 PM',
-      'amount': '-₱75.00',
-      'isDeduction': true,
-      'icon': Iconsax.car,
-    },
-    {
-      'title': 'Cash In via GCash',
-      'date': 'Yesterday, 10:00 AM',
-      'amount': '+₱500.00',
-      'isDeduction': false,
-      'icon': Iconsax.wallet_add,
-    },
-    {
-      'title': 'Pabili at Palengke',
-      'date': 'Mon, 9:15 AM',
-      'amount': '-₱350.00',
-      'isDeduction': true,
-      'icon': Iconsax.shopping_cart,
-    },
-    {
-      'title': 'Parcel to Makati',
-      'date': 'Sun, 1:45 PM',
-      'amount': '-₱120.00',
-      'isDeduction': true,
-      'icon': Iconsax.box,
-    },
-  ];
 }

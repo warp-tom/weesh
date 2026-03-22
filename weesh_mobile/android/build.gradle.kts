@@ -22,12 +22,18 @@ subprojects {
 subprojects {
     plugins.withId("com.android.library") {
         val extension = extensions.findByName("android") as? com.android.build.gradle.LibraryExtension
-        if (extension != null && extension.namespace == null) {
-            val manifest = file("src/main/AndroidManifest.xml")
-            if (manifest.exists()) {
-                val pkg = Regex("package=\"([^\"]+)\"").find(manifest.readText())?.groupValues?.get(1)
-                if (pkg != null) {
-                    extension.namespace = pkg
+        if (extension != null) {
+            // Force compileSdk to 34 to fix "AAPT error: resource android:attr/lStar not found"
+            // caused by older plugins depending on newer AndroidX core libraries.
+            extension.compileSdk = 34
+            
+            if (extension.namespace == null) {
+                val manifest = file("src/main/AndroidManifest.xml")
+                if (manifest.exists()) {
+                    val pkg = Regex("package=\"([^\"]+)\"").find(manifest.readText())?.groupValues?.get(1)
+                    if (pkg != null) {
+                        extension.namespace = pkg
+                    }
                 }
             }
         }
